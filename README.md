@@ -137,6 +137,7 @@ sudo apt install -y build-essential python3-dev libffi-dev libjpeg-dev zlib1g-de
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
+
 ```
 
 7. **Jalankan aplikasi:**
