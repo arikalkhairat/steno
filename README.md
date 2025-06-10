@@ -50,25 +50,347 @@ PyMuPDF==1.23.5
 
 ## 🚀 Instalasi & Menjalankan
 
-1. **Clone repository:**
+### 📱 Windows
+
+1. **Pastikan Python 3.8+ terinstall:**
+```bash
+python --version
+# Jika belum ada, download dari https://python.org
+```
+
+2. **Clone repository:**
 ```bash
 git clone <repository-url>
 cd ika-sayangg
 ```
 
-2. **Install dependencies:**
+3. **Buat virtual environment:**
 ```bash
+python -m venv .venv
+```
+
+4. **Aktivasi virtual environment:**
+```bash
+# Windows Command Prompt
+.venv\Scripts\activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# Git Bash
+source .venv/Scripts/activate
+```
+
+5. **Install dependencies:**
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-3. **Jalankan aplikasi:**
+6. **Jalankan aplikasi:**
 ```bash
 python app.py
 ```
 
-4. **Buka browser:**
+7. **Buka browser:**
 ```
 http://localhost:5000
+```
+
+8. **Untuk menghentikan:**
+```bash
+# Tekan Ctrl+C untuk stop server
+# Deactivate virtual environment
+deactivate
+```
+
+### 🐧 Ubuntu/Linux
+
+1. **Update sistem dan install Python:**
+```bash
+sudo apt update
+sudo apt install python3 python3-pip python3-venv git
+```
+
+2. **Clone repository:**
+```bash
+git clone <repository-url>
+cd ika-sayangg
+```
+
+3. **Buat virtual environment:**
+```bash
+python3 -m venv .venv
+```
+
+4. **Aktivasi virtual environment:**
+```bash
+source .venv/bin/activate
+```
+
+5. **Install system dependencies untuk PyMuPDF:**
+```bash
+sudo apt install -y build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev
+```
+
+6. **Install Python dependencies:**
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+7. **Jalankan aplikasi:**
+```bash
+python app.py
+```
+
+8. **Buka browser:**
+```
+http://localhost:5000
+```
+
+9. **Untuk menghentikan aplikasi:**
+```bash
+# Tekan Ctrl+C untuk stop server
+# Deactivate virtual environment
+deactivate
+```
+
+### 🚀 Quick Start Ubuntu (One-liner)
+```bash
+sudo apt update && sudo apt install -y python3 python3-pip python3-venv git build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev && git clone <repository-url> && cd ika-sayangg && python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && python app.py
+```
+
+### 🍎 macOS
+
+1. **Install Homebrew (jika belum ada):**
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+2. **Install Python dan dependencies:**
+```bash
+brew install python3 git
+```
+
+3. **Clone repository:**
+```bash
+git clone <repository-url>
+cd ika-sayangg
+```
+
+4. **Buat virtual environment:**
+```bash
+python3 -m venv .venv
+```
+
+5. **Aktivasi virtual environment:**
+```bash
+source .venv/bin/activate
+```
+
+6. **Install dependencies:**
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+7. **Jalankan aplikasi:**
+```bash
+python app.py
+```
+
+8. **Untuk menghentikan:**
+```bash
+# Tekan Ctrl+C untuk stop server
+deactivate
+```
+
+### 🐧 Distribusi Linux Lain
+
+**CentOS/RHEL/Fedora:**
+```bash
+# CentOS/RHEL
+sudo yum install python3 python3-pip python3-devel gcc git
+# Fedora
+sudo dnf install python3 python3-pip python3-devel gcc git
+
+git clone <repository-url>
+cd ika-sayangg
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+python app.py
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S python python-pip git base-devel
+git clone <repository-url>
+cd ika-sayangg
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+python app.py
+```
+
+**Alpine Linux:**
+```bash
+sudo apk add python3 python3-dev py3-pip git gcc musl-dev libffi-dev jpeg-dev zlib-dev
+git clone <repository-url>
+cd ika-sayangg
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+python app.py
+```
+
+## 🔄 Manajemen Virtual Environment
+
+### Mengaktifkan Virtual Environment
+
+**Windows:**
+```bash
+# Command Prompt
+.venv\Scripts\activate
+
+# PowerShell
+.venv\Scripts\Activate.ps1
+
+# Git Bash
+source .venv/Scripts/activate
+```
+
+**Linux/macOS:**
+```bash
+source .venv/bin/activate
+```
+
+### Menambah Dependencies Baru
+
+```bash
+# Pastikan virtual environment aktif
+source .venv/bin/activate  # Linux/macOS
+# atau .venv\Scripts\activate  # Windows
+
+# Install package baru
+pip install package-name
+
+# Update requirements.txt
+pip freeze > requirements.txt
+```
+
+### Menghapus Virtual Environment
+
+```bash
+# Deactivate dulu
+deactivate
+
+# Hapus folder .venv
+rm -rf .venv  # Linux/macOS
+# atau rmdir /s .venv  # Windows
+```
+
+### Recreate Virtual Environment
+
+```bash
+# Hapus .venv lama
+rm -rf .venv
+
+# Buat ulang
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 📝 Catatan Penting
+
+- **Folder `.venv`** sudah ada di `.gitignore` untuk menghindari commit virtual environment
+- Selalu aktifkan virtual environment sebelum install/menjalankan aplikasi
+- Gunakan `pip freeze > requirements.txt` untuk update dependencies
+- Virtual environment bersifat lokal per project dan tidak portable
+
+## 🚀 Production Deployment
+
+### Menggunakan Gunicorn (Ubuntu/Linux)
+
+1. **Aktivasi virtual environment:**
+```bash
+source .venv/bin/activate
+```
+
+2. **Install Gunicorn:**
+```bash
+pip install gunicorn
+```
+
+3. **Jalankan dengan Gunicorn:**
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
+
+4. **Dengan Nginx (optional):**
+```bash
+sudo apt install nginx
+# Configure nginx reverse proxy ke localhost:5000
+```
+
+### Menggunakan Docker
+
+1. **Buat Dockerfile:**
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN apt-get update && apt-get install -y \
+    build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev \
+    && pip install -r requirements.txt
+
+COPY . .
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+```
+
+2. **Build dan Run:**
+```bash
+docker build -t qr-watermarking .
+docker run -p 5000:5000 qr-watermarking
+```
+
+### Systemd Service (Ubuntu)
+
+1. **Buat service file:**
+```bash
+sudo nano /etc/systemd/system/qr-watermarking.service
+```
+
+2. **Isi service file:**
+```ini
+[Unit]
+Description=QR Watermarking Tool
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/path/to/ika-sayangg
+Environment=PATH=/path/to/ika-sayangg/.venv/bin
+ExecStart=/path/to/ika-sayangg/.venv/bin/python app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+3. **Enable dan start:**
+```bash
+sudo systemctl enable qr-watermarking
+sudo systemctl start qr-watermarking
 ```
 
 ## 📖 Cara Penggunaan
@@ -167,6 +489,68 @@ ika-sayangg/
 2. **Image Quality**: Hasil bergantung kualitas gambar asli
 3. **File Size**: Terbatas oleh kapasitas server (16MB default)
 4. **QR Size**: QR Code akan di-resize otomatis jika gambar terlalu kecil
+
+## 🔧 Troubleshooting
+
+### Ubuntu/Linux Issues
+
+**Error: "Python.h: No such file or directory"**
+```bash
+sudo apt install python3-dev
+```
+
+**Error: "Failed building wheel for PyMuPDF"**
+```bash
+sudo apt install build-essential python3-dev libffi-dev
+pip install --upgrade pip setuptools wheel
+pip install PyMuPDF
+```
+
+**Error: "Permission denied" saat install**
+```bash
+# Gunakan virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+**Error: "zbar shared library not found"**
+```bash
+sudo apt install libzbar0
+```
+
+**Error: "No module named '_tkinter'"**
+```bash
+sudo apt install python3-tk
+```
+
+### Windows Issues
+
+**Error: "Microsoft Visual C++ 14.0 is required"**
+- Download dan install Microsoft C++ Build Tools
+- Atau install Visual Studio Community
+
+**Error: "pip is not recognized"**
+- Pastikan Python dan pip sudah ada di PATH
+- Reinstall Python dengan opsi "Add to PATH"
+
+### General Issues
+
+**Port 5000 sudah digunakan:**
+```bash
+# Ganti port di app.py
+app.run(host='0.0.0.0', port=8080, debug=True)
+```
+
+**Memory error saat processing PDF besar:**
+- Gunakan PDF dengan ukuran lebih kecil (<16MB)
+- Compress PDF terlebih dahulu
+
+**QR Code tidak terbaca:**
+- Pastikan kualitas gambar cukup baik
+- Coba dengan gambar yang lebih besar
+- Periksa format file (harus PNG untuk QR input)
 
 ## 🔮 Future Development
 
