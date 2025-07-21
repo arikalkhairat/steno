@@ -1,7 +1,7 @@
 @echo off
 echo ========================================================
 echo    QR Code Watermarking Tool
-echo    Created by Arikal Sayangg
+echo    Created by Arikal Khairat
 echo ========================================================
 echo.
 

@@ -1,4 +1,4 @@
-# File: app.py
+ # File: app.py
 # Deskripsi: Aplikasi web Flask untuk watermarking dokumen .docx dengan QR Code LSB.
 
 import os
