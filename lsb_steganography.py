@@ -79,6 +79,172 @@ def _resize_qr_for_capacity(qr_img, max_capacity: int):
     return resized_qr
 
 
+def validate_qr_for_image(qr_width: int, qr_height: int, image_width: int, image_height: int) -> dict:
+    """
+    Validasi apakah QR Code dapat disimpan dalam gambar dengan kapasitas yang tersedia.
+    
+    Args:
+        qr_width: Lebar QR Code dalam pixel
+        qr_height: Tinggi QR Code dalam pixel  
+        image_width: Lebar gambar penampung dalam pixel
+        image_height: Tinggi gambar penampung dalam pixel
+    
+    Returns:
+        dict: Hasil validasi dengan informasi detail
+            - 'valid': bool - Apakah QR bisa disimpan
+            - 'qr_bits': int - Jumlah bit yang dibutuhkan QR
+            - 'image_capacity': int - Kapasitas gambar dalam bit
+            - 'header_bits': int - Bit yang dibutuhkan header
+            - 'total_bits_needed': int - Total bit yang dibutuhkan
+            - 'utilization_percentage': float - Persentase penggunaan kapasitas
+            - 'remaining_capacity': int - Sisa kapasitas setelah penyisipan
+            - 'warning': str - Peringatan jika ada
+    """
+    # Hitung kebutuhan bit
+    header_bits = 16 + 16 + HEADER_TERMINATOR_LEN  # width + height + terminator
+    qr_bits = qr_width * qr_height
+    total_bits_needed = header_bits + qr_bits
+    
+    # Hitung kapasitas gambar (menggunakan blue channel LSB)
+    image_capacity = image_width * image_height
+    
+    # Hitung utilization dan sisa kapasitas
+    utilization_percentage = (total_bits_needed / image_capacity * 100) if image_capacity > 0 else 0
+    remaining_capacity = image_capacity - total_bits_needed
+    
+    # Tentukan apakah valid
+    is_valid = total_bits_needed <= image_capacity
+    
+    # Generate warning berdasarkan utilization
+    warning = ""
+    if not is_valid:
+        warning = f"QR terlalu besar untuk gambar ini. Kekurangan {-remaining_capacity} bit."
+    elif utilization_percentage > 90:
+        warning = "Peringatan: Penggunaan kapasitas sangat tinggi (>90%), kualitas gambar mungkin terpengaruh."
+    elif utilization_percentage > 75:
+        warning = "Peringatan: Penggunaan kapasitas tinggi (>75%), pertimbangkan resize QR."
+    elif utilization_percentage > 50:
+        warning = "Info: Penggunaan kapasitas sedang (>50%), masih dalam batas aman."
+    
+    return {
+        'valid': is_valid,
+        'qr_bits': qr_bits,
+        'image_capacity': image_capacity,
+        'header_bits': header_bits,
+        'total_bits_needed': total_bits_needed,
+        'utilization_percentage': utilization_percentage,
+        'remaining_capacity': remaining_capacity,
+        'warning': warning
+    }
+
+
+def recommend_qr_config_for_capacity(image_capacity: int, text_length: int = 0) -> dict:
+    """
+    Merekomendasikan konfigurasi QR Code optimal berdasarkan kapasitas gambar.
+    
+    Args:
+        image_capacity: Kapasitas gambar dalam bit (lebar × tinggi)
+        text_length: Panjang text yang akan dienkoding (opsional)
+        
+    Returns:
+        dict: Rekomendasi konfigurasi QR
+            - 'recommended_version': int - Versi QR yang direkomendasikan
+            - 'max_qr_dimension': int - Dimensi maksimum QR yang dapat ditampung  
+            - 'recommended_box_size': int - Ukuran box yang disarankan
+            - 'error_correction': str - Level error correction yang disarankan
+            - 'estimated_capacity': int - Perkiraan kapasitas data QR
+            - 'text_encoding': str - Jenis encoding yang disarankan untuk text
+            - 'rationale': str - Alasan rekomendasi
+    """
+    # Kurangi kapasitas untuk header
+    available_bits = image_capacity - (16 + 16 + HEADER_TERMINATOR_LEN)
+    
+    if available_bits <= 0:
+        return {
+            'recommended_version': None,
+            'max_qr_dimension': 0,
+            'recommended_box_size': 1,
+            'error_correction': 'L',
+            'estimated_capacity': 0,
+            'text_encoding': 'Byte',
+            'rationale': 'Kapasitas gambar terlalu kecil untuk QR Code apapun.'
+        }
+    
+    # Hitung dimensi maksimum QR yang bisa ditampung
+    max_qr_dimension = int(math.sqrt(available_bits))
+    
+    # QR Version mapping (approximate)
+    qr_versions = [
+        (21, 1), (25, 2), (29, 3), (33, 4), (37, 5), (41, 6), (45, 7), (49, 8),
+        (53, 9), (57, 10), (61, 11), (65, 12), (69, 13), (73, 14), (77, 15),
+        (81, 16), (85, 17), (89, 18), (93, 19), (97, 20), (101, 21), (105, 22),
+        (109, 23), (113, 24), (117, 25), (121, 26), (125, 27), (129, 28),
+        (133, 29), (137, 30), (141, 31), (145, 32), (149, 33), (153, 34),
+        (157, 35), (161, 36), (165, 37), (169, 38), (173, 39), (177, 40)
+    ]
+    
+    # Temukan versi QR terbesar yang masih muat
+    recommended_version = 1
+    for dimension, version in qr_versions:
+        if dimension <= max_qr_dimension:
+            recommended_version = version
+        else:
+            break
+    
+    # Tentukan box size berdasarkan dimensi yang tersedia
+    if max_qr_dimension >= 200:
+        recommended_box_size = max(8, min(15, max_qr_dimension // 20))
+    elif max_qr_dimension >= 100:
+        recommended_box_size = max(4, min(10, max_qr_dimension // 15))
+    else:
+        recommended_box_size = max(2, min(6, max_qr_dimension // 10))
+    
+    # Tentukan error correction berdasarkan kapasitas
+    if available_bits > 10000:  # Kapasitas besar
+        error_correction = 'M'  # Medium (15% recovery) - balance terbaik
+    elif available_bits > 5000:  # Kapasitas sedang
+        error_correction = 'L'  # Low (7% recovery) - maximize data
+    else:  # Kapasitas kecil
+        error_correction = 'L'  # Low untuk efisiensi maksimum
+    
+    # Perkiraan kapasitas data berdasarkan versi QR
+    # Ini adalah perkiraan kasar berdasarkan QR version
+    capacity_estimates = {
+        1: 25, 2: 47, 3: 77, 4: 114, 5: 154, 6: 195, 7: 224, 8: 279, 9: 335, 10: 395,
+        11: 468, 12: 535, 13: 619, 14: 667, 15: 758, 16: 854, 17: 938, 18: 1046,
+        19: 1153, 20: 1249, 21: 1352, 22: 1460, 23: 1588, 24: 1704, 25: 1853,
+        26: 1990, 27: 2132, 28: 2223, 29: 2369, 30: 2520, 31: 2677, 32: 2840,
+        33: 3009, 34: 3183, 35: 3351, 36: 3537, 37: 3729, 38: 3927, 39: 4087, 40: 4296
+    }
+    
+    estimated_capacity = capacity_estimates.get(recommended_version, 25)
+    
+    # Tentukan text encoding berdasarkan text_length
+    if text_length == 0:
+        text_encoding = 'Byte'
+    elif text_length <= estimated_capacity * 0.8:  # Masih ada ruang
+        text_encoding = 'Alphanumeric' if text_length <= estimated_capacity * 0.6 else 'Byte'
+    else:
+        text_encoding = 'Numeric'  # Paling efisien
+    
+    # Generate rationale
+    utilization = (text_length / estimated_capacity * 100) if estimated_capacity > 0 and text_length > 0 else 0
+    rationale = f"Berdasarkan kapasitas {image_capacity:,} bit, QR Version {recommended_version} optimal. "
+    if text_length > 0:
+        rationale += f"Text {text_length} karakter menggunakan {utilization:.1f}% kapasitas QR. "
+    rationale += f"Box size {recommended_box_size}px memberikan keseimbangan visibility dan size."
+    
+    return {
+        'recommended_version': recommended_version,
+        'max_qr_dimension': max_qr_dimension,
+        'recommended_box_size': recommended_box_size,
+        'error_correction': error_correction,
+        'estimated_capacity': estimated_capacity,
+        'text_encoding': text_encoding,
+        'rationale': rationale
+    }
+
+
 def embed_qr_to_image(cover_image_path: str, qr_image_path: str, output_stego_path: str, resize_qr_if_needed: bool = True):
     """
     Menyisipkan citra QR Code ke dalam LSB channel Biru dari citra penampung.
@@ -118,12 +284,51 @@ def embed_qr_to_image(cover_image_path: str, qr_image_path: str, output_stego_pa
         cover_width, cover_height = cover_img.size
         qr_width, qr_height = qr_img.size
 
+        # Use new validation function to check QR configuration
+        validation_result = validate_qr_for_image(qr_width, qr_height, cover_width, cover_height)
+        
+        # Log validation results
+        print(f"[*] Validasi QR Configuration:")
+        print(f"    QR Size: {qr_width}x{qr_height} ({validation_result['qr_bits']} bits)")
+        print(f"    Image Capacity: {validation_result['image_capacity']} bits")
+        print(f"    Utilization: {validation_result['utilization_percentage']:.1f}%")
+        
+        if validation_result['warning']:
+            print(f"[!] {validation_result['warning']}")
+
         # Hitung kapasitas citra penampung
         max_capacity = cover_width * cover_height
 
         # 2. Buat aliran bit dari QR Code
         # Cek dulu jika perlu resize QR
         original_qr_size = (qr_width, qr_height)
+
+        # If validation fails, handle according to resize option
+        if not validation_result['valid']:
+            if resize_qr_if_needed:
+                print("[*] QR terlalu besar, melakukan resize otomatis...")
+                qr_img = _resize_qr_for_capacity(qr_img, max_capacity)
+                qr_width, qr_height = qr_img.size
+                
+                # Re-validate after resize
+                validation_result = validate_qr_for_image(qr_width, qr_height, cover_width, cover_height)
+                print(f"[*] Setelah resize: {qr_width}x{qr_height}, Utilization: {validation_result['utilization_percentage']:.1f}%")
+                
+                if validation_result['warning']:
+                    print(f"[!] {validation_result['warning']}")
+                    
+            else:
+                # Show recommendation for better configuration
+                recommendation = recommend_qr_config_for_capacity(max_capacity)
+                print(f"[!] Rekomendasi: QR Version {recommendation['recommended_version']}, Box Size {recommendation['recommended_box_size']}px")
+                print(f"[!] {recommendation['rationale']}")
+                raise ValueError(f"Kapasitas citra tidak cukup. {validation_result['warning']}")
+        
+        # Show capacity warnings for high utilization
+        elif validation_result['utilization_percentage'] > 75:
+            print(f"[!] Peringatan: Tingkat penggunaan tinggi ({validation_result['utilization_percentage']:.1f}%)")
+            recommendation = recommend_qr_config_for_capacity(max_capacity)
+            print(f"[*] Saran: Gunakan QR Version {recommendation['recommended_version']} dengan box size {recommendation['recommended_box_size']}px untuk hasil optimal")
 
         # Perkiraan kebutuhan bit untuk header dan data QR
         header_bits_len = 16 + 16 + HEADER_TERMINATOR_LEN
@@ -151,11 +356,13 @@ def embed_qr_to_image(cover_image_path: str, qr_image_path: str, output_stego_pa
         # Total bit yang perlu disisipkan
         total_bits_to_embed = num_header_bits + num_qr_bits
 
-        # 4. Cek kapasitas final citra penampung setelah resize (jika ada)
-        if total_bits_to_embed > max_capacity:
-            raise ValueError(f"Kapasitas citra tidak cukup bahkan setelah resize. Dibutuhkan: {total_bits_to_embed} bits, Tersedia: {max_capacity} bits.")
+        # 4. Final validation after all processing
+        final_validation = validate_qr_for_image(qr_width, qr_height, cover_width, cover_height)
+        if not final_validation['valid']:
+            raise ValueError(f"Kapasitas citra tidak cukup bahkan setelah resize. {final_validation['warning']}")
 
-        # Informasi proses
+        # Enhanced process information with validation details
+        print(f"[*] ===== INFORMASI PROSES EMBEDDING =====")
         print(f"[*] Ukuran QR Code: {qr_width}x{qr_height}")
         if original_qr_size != (qr_width, qr_height):
             print(f"[*] QR Code diresize dari {original_qr_size[0]}x{original_qr_size[1]} ke {qr_width}x{qr_height}")
@@ -163,6 +370,18 @@ def embed_qr_to_image(cover_image_path: str, qr_image_path: str, output_stego_pa
         print(f"[*] Jumlah bit Header: {num_header_bits}")
         print(f"[*] Total bit untuk disisipkan: {total_bits_to_embed}")
         print(f"[*] Kapasitas citra penampung (Blue channel LSB): {max_capacity} bits")
+        print(f"[*] Penggunaan kapasitas: {final_validation['utilization_percentage']:.1f}%")
+        print(f"[*] Sisa kapasitas: {final_validation['remaining_capacity']} bits")
+        
+        # Additional capacity warnings
+        if final_validation['utilization_percentage'] > 90:
+            print("[!] PERINGATAN: Penggunaan kapasitas sangat tinggi! Kualitas mungkin terpengaruh.")
+        elif final_validation['utilization_percentage'] > 75:
+            print("[!] PERINGATAN: Penggunaan kapasitas tinggi, monitor hasil dengan seksama.")
+        elif final_validation['utilization_percentage'] < 25:
+            print("[*] INFO: Penggunaan kapasitas rendah, QR bisa diperbesar untuk kualitas lebih baik.")
+        
+        print(f"[*] ========================================")
 
         # 5. Siapkan data untuk disisipkan dan citra output
         data_bits_iterator = iter(header_bits + qr_bits)  # Iterator untuk bit header + QR

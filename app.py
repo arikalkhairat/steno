@@ -10,8 +10,9 @@ from PIL import Image
 import numpy as np
 import fitz  # PyMuPDF
 
-from main import extract_images_from_docx, embed_watermark_to_docx, extract_images_from_pdf, embed_watermark_to_pdf
-from qr_utils import read_qr
+from main import extract_images_from_docx, embed_watermark_to_docx, extract_images_from_pdf, embed_watermark_to_pdf, analyze_qr_options
+from qr_utils import (read_qr, analyze_text_encoding, calculate_qr_capacity, 
+                      get_optimal_qr_version, compare_qr_configurations, generate_qr_advanced)
 
 # Inisialisasi aplikasi Flask
 app = Flask(__name__)
@@ -142,18 +143,65 @@ def generate_qr_route():
     if not data:
         return jsonify({"success": False, "message": "Data QR tidak boleh kosong."}), 400
 
+    # Get optional configuration parameters with defaults for backward compatibility
+    version = request.form.get('version', type=int)  # None if not provided
+    error_correction = request.form.get('error_correction', 'M')  # Default to 'M'
+    box_size = request.form.get('box_size', 10, type=int)  # Default to 10
+    border = request.form.get('border', 4, type=int)  # Default to 4
+    analyze = request.form.get('analyze', 'false').lower() == 'true'  # Default to False
+
+    # Validate parameters
+    if version is not None and not (1 <= version <= 40):
+        return jsonify({"success": False, "message": "Version harus antara 1-40."}), 400
+    
+    if error_correction not in ['L', 'M', 'Q', 'H']:
+        return jsonify({"success": False, "message": "Error correction harus L, M, Q, atau H."}), 400
+    
+    if box_size < 1:
+        return jsonify({"success": False, "message": "Box size harus minimal 1."}), 400
+    
+    if border < 0:
+        return jsonify({"success": False, "message": "Border harus non-negatif."}), 400
+
     qr_filename = f"qr_{uuid.uuid4().hex}.png"
     qr_output_path = os.path.join(app.config['GENERATED_FOLDER'], qr_filename)
 
+    # Build command with new parameters
     args = ['generate_qr', '--data', data, '--output', qr_output_path]
+    
+    if version is not None:
+        args.extend(['--version', str(version)])
+    
+    args.extend(['--error-correction', error_correction])
+    args.extend(['--box-size', str(box_size)])
+    args.extend(['--border', str(border)])
+    
+    if analyze:
+        args.append('--analyze')
+
     result = run_main_script(args)
 
     if result["success"] and os.path.exists(qr_output_path):
+        # Try to get QR analysis information if analyze was requested
+        analysis_info = None
+        if analyze:
+            try:
+                analysis_info = analyze_qr_options(data)
+            except Exception as e:
+                print(f"[!] Warning: Analysis failed: {str(e)}")
+
         return jsonify({
             "success": True,
             "message": "QR Code berhasil dibuat!",
             "qr_url": f"/static/generated/{qr_filename}",
             "qr_filename": qr_filename,
+            "configuration": {
+                "version": version,
+                "error_correction": error_correction,
+                "box_size": box_size,
+                "border": border
+            },
+            "analysis": analysis_info,
             "log": result["stdout"]
         })
     else:
@@ -161,6 +209,238 @@ def generate_qr_route():
             "success": False,
             "message": "Gagal membuat QR Code.",
             "log": result["stderr"] or result.get("error", "Error tidak diketahui")
+        }), 500
+
+
+@app.route('/analyze_qr_text', methods=['POST'])
+def analyze_qr_text_route():
+    """Analyze text and return encoding recommendations."""
+    try:
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            text = data.get('text')
+            target_image_sizes = data.get('target_image_sizes', [])
+        else:
+            text = request.form.get('text')
+            # Parse target_image_sizes from form if provided as JSON string
+            import json
+            target_sizes_str = request.form.get('target_image_sizes', '[]')
+            try:
+                target_image_sizes = json.loads(target_sizes_str) if target_sizes_str else []
+            except json.JSONDecodeError:
+                target_image_sizes = []
+
+        if not text:
+            return jsonify({"success": False, "message": "Text tidak boleh kosong."}), 400
+
+        # Convert target_image_sizes to list of tuples if needed
+        if target_image_sizes and isinstance(target_image_sizes[0], list):
+            target_image_sizes = [tuple(size) for size in target_image_sizes]
+
+        # Perform analysis
+        analysis_result = analyze_qr_options(text, target_image_sizes)
+        
+        return jsonify({
+            "success": True,
+            "message": "Analisis berhasil.",
+            "analysis": analysis_result
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error saat analisis: {str(e)}"
+        }), 500
+
+
+@app.route('/compare_qr_versions', methods=['POST'])
+def compare_qr_versions_route():
+    """Compare different QR configurations."""
+    try:
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            text = data.get('text')
+            versions = data.get('versions', None)
+        else:
+            text = request.form.get('text')
+            # Parse versions from form if provided as JSON string
+            import json
+            versions_str = request.form.get('versions', 'null')
+            try:
+                versions = json.loads(versions_str) if versions_str != 'null' else None
+            except json.JSONDecodeError:
+                versions = None
+
+        if not text:
+            return jsonify({"success": False, "message": "Text tidak boleh kosong."}), 400
+
+        # Validate versions if provided
+        if versions:
+            if not isinstance(versions, list):
+                return jsonify({"success": False, "message": "Versions harus berupa array."}), 400
+            
+            for v in versions:
+                if not isinstance(v, int) or not (1 <= v <= 40):
+                    return jsonify({"success": False, "message": "Setiap version harus integer antara 1-40."}), 400
+
+        # Perform comparison
+        comparison_result = compare_qr_configurations(text, versions)
+        
+        return jsonify({
+            "success": True,
+            "message": "Perbandingan berhasil.",
+            "comparison": comparison_result
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error saat perbandingan: {str(e)}"
+        }), 500
+
+
+@app.route('/calculate_qr_capacity', methods=['POST'])
+def calculate_qr_capacity_route():
+    """Calculate capacity for given QR parameters."""
+    try:
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            version = data.get('version')
+            error_level = data.get('error_level')
+            encoding = data.get('encoding')
+        else:
+            version = request.form.get('version', type=int)
+            error_level = request.form.get('error_level')
+            encoding = request.form.get('encoding')
+
+        # Validate required parameters
+        if version is None:
+            return jsonify({"success": False, "message": "Parameter version diperlukan."}), 400
+        if not error_level:
+            return jsonify({"success": False, "message": "Parameter error_level diperlukan."}), 400
+        if not encoding:
+            return jsonify({"success": False, "message": "Parameter encoding diperlukan."}), 400
+
+        # Validate parameter values
+        if not (1 <= version <= 40):
+            return jsonify({"success": False, "message": "Version harus antara 1-40."}), 400
+        
+        if error_level not in ['L', 'M', 'Q', 'H']:
+            return jsonify({"success": False, "message": "Error level harus L, M, Q, atau H."}), 400
+        
+        if encoding not in ['numeric', 'alphanumeric', 'byte']:
+            return jsonify({"success": False, "message": "Encoding harus numeric, alphanumeric, atau byte."}), 400
+
+        # Calculate capacity
+        capacity = calculate_qr_capacity(version, error_level, encoding)
+        
+        return jsonify({
+            "success": True,
+            "message": "Kapasitas berhasil dihitung.",
+            "capacity": capacity,
+            "parameters": {
+                "version": version,
+                "error_level": error_level,
+                "encoding": encoding
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error saat menghitung kapasitas: {str(e)}"
+        }), 500
+
+
+@app.route('/generate_qr_advanced', methods=['POST'])
+def generate_qr_advanced_route():
+    """Generate QR with custom configuration using advanced options."""
+    try:
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            text = data.get('data') or data.get('text')
+            version = data.get('version')
+            error_correction = data.get('error_correction', 'M')
+            box_size = data.get('box_size', 10)
+            border = data.get('border', 4)
+        else:
+            text = request.form.get('data') or request.form.get('text')
+            version = request.form.get('version', type=int)
+            error_correction = request.form.get('error_correction', 'M')
+            box_size = request.form.get('box_size', 10, type=int)
+            border = request.form.get('border', 4, type=int)
+
+        if not text:
+            return jsonify({"success": False, "message": "Data/text tidak boleh kosong."}), 400
+
+        # Validate parameters
+        if version is not None and not (1 <= version <= 40):
+            return jsonify({"success": False, "message": "Version harus antara 1-40."}), 400
+        
+        if error_correction not in ['L', 'M', 'Q', 'H']:
+            return jsonify({"success": False, "message": "Error correction harus L, M, Q, atau H."}), 400
+        
+        if box_size < 1:
+            return jsonify({"success": False, "message": "Box size harus minimal 1."}), 400
+        
+        if border < 0:
+            return jsonify({"success": False, "message": "Border harus non-negatif."}), 400
+
+        # Generate QR code
+        qr_filename = f"qr_advanced_{uuid.uuid4().hex}.png"
+        qr_output_path = os.path.join(app.config['GENERATED_FOLDER'], qr_filename)
+
+        # Use the advanced QR generation function directly
+        img = generate_qr_advanced(
+            data=text,
+            version=version,
+            error_correction=error_correction,
+            box_size=box_size,
+            border=border,
+            output_path=qr_output_path
+        )
+
+        # Get analysis information
+        analysis_info = None
+        try:
+            analysis_info = analyze_qr_options(text)
+        except Exception as e:
+            print(f"[!] Warning: Analysis failed: {str(e)}")
+
+        # Get actual QR configuration used (in case version was auto-selected)
+        try:
+            if version is None:
+                encoding = analyze_text_encoding(text)
+                actual_version = get_optimal_qr_version(len(text), encoding, error_correction)
+            else:
+                actual_version = version
+        except Exception as e:
+            print(f"[!] Warning: Could not determine actual version: {str(e)}")
+            actual_version = version
+
+        return jsonify({
+            "success": True,
+            "message": "QR Code advanced berhasil dibuat!",
+            "qr_url": f"/static/generated/{qr_filename}",
+            "qr_filename": qr_filename,
+            "configuration": {
+                "requested_version": version,
+                "actual_version": actual_version,
+                "error_correction": error_correction,
+                "box_size": box_size,
+                "border": border
+            },
+            "analysis": analysis_info
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error saat membuat QR Code advanced: {str(e)}"
         }), 500
 
 
@@ -174,6 +454,40 @@ def embed_document_route():
 
     doc_file = request.files['docxFileEmbed']
     qr_file = request.files['qrFileEmbed']
+    
+    # Extract advanced QR settings (optional parameters)
+    qr_version = request.form.get('qr_version', 'auto')
+    error_correction = request.form.get('error_correction', 'M')
+    box_size = request.form.get('box_size', '10')
+    border_size = request.form.get('border_size', '4')
+    auto_optimize = request.form.get('auto_optimize') == 'on'
+    
+    # Convert string parameters to appropriate types
+    try:
+        box_size = int(box_size)
+        border_size = int(border_size)
+        if qr_version != 'auto':
+            qr_version = int(qr_version)
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid QR configuration parameters"}), 400
+    
+    # Build QR configuration object
+    qr_config = {
+        'version': qr_version,
+        'error_correction': error_correction,
+        'box_size': box_size,
+        'border_size': border_size,
+        'auto_optimize': auto_optimize
+    }
+    
+    # Log advanced settings if they're not defaults
+    if qr_version != 'auto' or error_correction != 'M' or box_size != 10 or not auto_optimize:
+        print(f"[INFO] Advanced QR settings detected:")
+        print(f"  - Version: {qr_version}")
+        print(f"  - Error Correction: {error_correction}")
+        print(f"  - Box Size: {box_size}px")
+        print(f"  - Border Size: {border_size}")
+        print(f"  - Auto Optimize: {auto_optimize}")
 
     if doc_file.filename == '' or qr_file.filename == '':
         error_msg = "Nama file tidak boleh kosong."
@@ -202,6 +516,58 @@ def embed_document_route():
     qr_temp_path = os.path.join(app.config['UPLOAD_FOLDER'], qr_embed_filename)
     doc_file.save(doc_temp_path)
     qr_file.save(qr_temp_path)
+
+    # Auto-optimization logic
+    optimized_qr_config = qr_config.copy()
+    if auto_optimize:
+        print("[*] Auto-optimization enabled, analyzing document images...")
+        try:
+            # First, do a quick analysis of the document to get image sizes
+            if is_docx:
+                from main import analyze_docx_images
+                image_analysis = analyze_docx_images(doc_temp_path)
+            else:
+                from main import analyze_pdf_images  
+                image_analysis = analyze_pdf_images(doc_temp_path)
+            
+            if image_analysis and image_analysis.get('images'):
+                # Get average image size for optimization
+                avg_width = sum(img.get('width', 0) for img in image_analysis['images']) / len(image_analysis['images'])
+                avg_height = sum(img.get('height', 0) for img in image_analysis['images']) / len(image_analysis['images'])
+                min_dimension = min(avg_width, avg_height)
+                
+                print(f"[*] Average image dimensions: {avg_width:.0f}x{avg_height:.0f}")
+                print(f"[*] Min dimension: {min_dimension:.0f}px")
+                
+                # Optimize QR settings based on image size
+                if qr_version == 'auto':
+                    # Use qr_utils to get optimal version
+                    from qr_utils import get_optimal_qr_version
+                    try:
+                        with open(qr_temp_path, 'rb') as qr_file_handle:
+                            from PIL import Image
+                            qr_img = Image.open(qr_file_handle)
+                            qr_data = "sample"  # We'll extract actual data later if needed
+                            optimal_version = get_optimal_qr_version(qr_data, error_correction)
+                            optimized_qr_config['version'] = optimal_version
+                            print(f"[*] Optimal QR version: {optimal_version}")
+                    except Exception as e:
+                        print(f"[!] Could not determine optimal QR version: {e}")
+                
+                # Optimize box size based on image dimensions
+                if min_dimension > 800:
+                    suggested_box_size = max(12, min(20, int(min_dimension / 40)))
+                elif min_dimension > 400:
+                    suggested_box_size = max(8, min(15, int(min_dimension / 50)))
+                else:
+                    suggested_box_size = max(4, min(10, int(min_dimension / 60)))
+                
+                optimized_qr_config['box_size'] = suggested_box_size
+                print(f"[*] Optimized box size: {suggested_box_size}px")
+                
+        except Exception as e:
+            print(f"[!] Auto-optimization failed, using original settings: {e}")
+            optimized_qr_config = qr_config.copy()
 
     stego_doc_filename = f"stego_doc_{uuid.uuid4().hex}{file_extension}"
     stego_doc_output_path = os.path.join(app.config['GENERATED_FOLDER'], stego_doc_filename)
@@ -311,7 +677,12 @@ def embed_document_route():
             "public_dir": public_dir,
             "qr_info": qr_info,
             "qr_data": qr_data,
-            "document_type": "docx" if is_docx else "pdf"
+            "document_type": "docx" if is_docx else "pdf",
+            "qr_config": {
+                "original": qr_config,
+                "optimized": optimized_qr_config,
+                "auto_optimization_applied": auto_optimize and (optimized_qr_config != qr_config)
+            }
         })
     else:
         # Hapus file temporary jika terjadi error
