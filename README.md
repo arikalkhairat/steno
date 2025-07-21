@@ -1,40 +1,128 @@
-# QR Code Watermarking Tool - LSB Steganography
+# 🔐 QR Code Watermarking Tool - LSB Steganography
 
-**Created by Arikal Sayangg ❤️**
+**Created by Arikal Khairat**
 
-Alat canggih untuk menyisipkan dan mengekstrak watermark QR Code pada dokumen DOCX dan PDF menggunakan teknik LSB (Least Significant Bit) Steganography.
+Aplikasi web Flask yang mudah digunakan untuk menyembunyikan dan mengekstrak watermark QR Code pada dokumen DOCX dan PDF menggunakan teknik LSB (Least Significant Bit) Steganography.
 
-## 🚀 Fitur Utama
+## 🎯 Apa itu Aplikasi Ini?
 
-### 1. Generate QR Code
-- Membuat QR Code dari teks yang diinginkan
-- Format output: PNG dengan resolusi tinggi
-- Dapat langsung digunakan sebagai watermark
+Aplikasi ini memungkinkan Anda untuk:
+- **Menyembunyikan pesan rahasia** dalam gambar yang ada di dokumen Word/PDF
+- **Memverifikasi keaslian dokumen** dengan mengecek watermark tersembunyi
+- **Melindungi hak cipta** dokumen dengan tanda tangan digital invisible
 
-### 2. Embed Watermark (DOCX & PDF)
-- **DOCX Support**: Menyisipkan watermark ke semua gambar dalam dokumen Word
-- **PDF Support**: Menyisipkan watermark ke semua gambar dalam dokumen PDF  
-- Menggunakan teknik LSB pada channel biru untuk menjaga kualitas visual
-- Automatic QR code resizing jika gambar terlalu kecil
-- Real-time quality metrics (MSE & PSNR) untuk DOCX
-- Preview before/after dengan analisis detail
+### 🔍 Bagaimana Cara Kerjanya?
+1. **LSB Steganography**: Mengubah bit terakhir pada pixel gambar (tidak terlihat mata)
+2. **QR Code**: Pesan rahasia diubah menjadi QR Code terlebih dahulu
+3. **Embedding**: QR Code disembunyikan ke dalam gambar-gambar di dokumen
+4. **Extraction**: QR Code dapat diekstrak kembali untuk verifikasi
 
-### 3. Validasi Dokumen (DOCX & PDF)
-- Ekstraksi watermark QR Code dari dokumen
-- Verifikasi keaslian dokumen
-- Mendukung multiple QR codes dalam satu dokumen
+## 🚀 Fitur Utama (Yang Bisa Dilakukan)
 
-## 🛠️ Teknologi yang Digunakan
+### 1. 📝 Generate QR Code
+**Apa yang dilakukan**: Membuat kode QR dari teks yang Anda masukkan
+- ✅ Ketik pesan apa saja (nama, tanggal, kode rahasia, dll)
+- ✅ Otomatis diubah menjadi gambar QR Code (.png)
+- ✅ Siap digunakan untuk watermarking
+- ✅ Nama file otomatis unik (tidak bentrok)
 
-- **Backend**: Flask (Python)
-- **Steganography**: LSB pada channel biru gambar
-- **Document Processing**: 
-  - python-docx untuk file DOCX
-  - PyMuPDF untuk file PDF
-- **QR Code**: qrcode & pyzbar libraries
-- **Image Processing**: Pillow (PIL)
-- **Math**: NumPy untuk kalkulasi MSE/PSNR
-- **Frontend**: Modern HTML5, CSS3, JavaScript
+**Contoh penggunaan**: 
+- Membuat QR berisi "Copyright 2025 - Arikal Khairat"
+- Membuat QR berisi nomor dokumen "DOC-001-2025"
+
+### 2. 🔒 Embed Watermark (Sembunyikan Pesan)
+**Apa yang dilakukan**: Menyembunyikan QR Code ke dalam dokumen
+- ✅ **DOCX Support**: Bisa untuk file Word (.docx)
+- ✅ **PDF Support**: Bisa untuk file PDF  
+- ✅ Otomatis mencari semua gambar dalam dokumen
+- ✅ Menyembunyikan QR Code di setiap gambar
+- ✅ Gambar terlihat sama (tidak ada perubahan visual)
+- ✅ Menghitung kualitas hasil (MSE & PSNR untuk DOCX)
+
+**Contoh penggunaan**:
+- Dokumen kontrak → disembunyikan QR "KONTRAK-ASLI-2025"
+- Sertifikat → disembunyikan QR "CERT-VALID-12345"
+
+### 3. 🔍 Extract/Validasi Dokumen (Cek Keaslian)
+**Apa yang dilakukan**: Mengecek apakah dokumen asli atau palsu
+- ✅ Upload dokumen yang ingin dicek
+- ✅ Otomatis ekstrak semua QR Code tersembunyi
+- ✅ Tampilkan isi pesan rahasia
+- ✅ Bisa detect multiple QR dalam satu dokumen
+- ✅ Warning jika dokumen tidak ada gambar
+
+**Contoh penggunaan**:
+- Cek sertifikat → muncul "CERT-VALID-12345" = ASLI
+- Cek sertifikat → tidak muncul apa-apa = PALSU atau DIUBAH
+
+## 🛠️ Teknologi yang Digunakan (Untuk Developer)
+
+### Backend (Server)
+- **Flask**: Framework web Python yang ringan dan mudah
+- **LSB Steganography**: Teknik menyembunyikan data di bit terakhir pixel
+- **UUID**: Sistem penamaan file otomatis yang unik
+
+### Document Processing (Pengolah Dokumen)
+- **python-docx**: Library untuk membaca/menulis file Word (.docx)
+- **PyMuPDF (fitz)**: Library untuk membaca/menulis file PDF
+- **Pillow (PIL)**: Library untuk edit gambar (resize, convert, dll)
+
+### QR Code & Image
+- **qrcode**: Membuat QR Code dari text
+- **pyzbar**: Membaca QR Code dari gambar
+- **NumPy**: Perhitungan matematika untuk MSE/PSNR
+
+### Frontend (Tampilan Web)
+- **HTML5, CSS3, JavaScript**: Interface web modern
+- **AJAX**: Upload file tanpa refresh halaman
+
+## 🌐 Halaman Web yang Tersedia
+
+### Halaman Utama
+- **`/`** → Halaman utama dengan 3 fitur lengkap
+- **`/process_details`** → Penjelasan detail cara kerja aplikasi
+
+### API untuk Generate & Process
+- **`/generate_qr`** → Buat QR Code dari text
+- **`/embed_document`** → Sembunyikan QR ke dokumen
+- **`/extract_document`** → Ekstrak QR dari dokumen
+
+### Download & Management
+- **`/download_generated/<nama_file>`** → Download file hasil proses
+- **`/download_documents/<nama_file>`** → Download dokumen permanen
+- **`/list_documents`** → Lihat daftar semua dokumen yang pernah diproses
+
+## 📁 Struktur Folder Project
+
+```
+/workspaces/steno/                    # 📂 Folder utama project
+├── 🖥️ app.py                        # Server web Flask (MAIN FILE)
+├── ⚙️ main.py                       # Functions inti steganography
+├── 🔧 lsb_steganography.py          # Logic LSB steganography
+├── 📱 qr_utils.py                   # Functions QR Code
+├── 📋 requirements.txt              # Daftar library yang dibutuhkan
+├── 📖 README.md                     # File dokumentasi ini
+│
+├── 🌐 templates/                    # 📂 Template HTML untuk web
+│   ├── index.html                   #    🏠 Halaman utama
+│   └── process_details.html         #    📄 Halaman detail proses
+│
+├── 📁 static/                       # 📂 File upload & hasil
+│   ├── uploads/                     #    ⬆️ File yang diupload user (temporary)
+│   └── generated/                   #    ⬇️ File hasil proses (QR, dokumen)
+│
+├── 🏛️ public/                       # 📂 Penyimpanan permanen
+│   └── documents/                   #    💾 Dokumen final yang sudah diproses
+│
+└── 🗂️ __pycache__/                  # 📂 Cache Python (otomatis)
+```
+
+### 📝 Penjelasan Setiap Folder:
+
+**📂 static/uploads/** → File yang baru diupload user (sementara, akan dihapus)
+**📂 static/generated/** → QR Code dan dokumen hasil proses 
+**📂 public/documents/** → Dokumen final disimpan permanen di sini
+**📂 templates/** → File HTML untuk tampilan web
 
 ## 📋 Requirements
 
@@ -48,176 +136,159 @@ numpy==1.24.3
 PyMuPDF==1.23.5
 ```
 
-## 🚀 Instalasi & Menjalankan
+## ⚙️ Pengaturan Aplikasi (Sudah Diatur Otomatis)
 
-### 📱 Windows
+- **📏 Batas Upload**: Maksimal 16MB per file
+- **📄 Format Dokumen**: .docx (Word), .pdf (PDF)
+- **🖼️ Format QR Code**: .png saja
+- **🔌 Port Otomatis**: 5001, 5002, 5003, 5004, 5005 (coba berurutan)
+- **🐛 Debug Mode**: Aktif (untuk development)
+- **🗑️ Auto Cleanup**: File temporary otomatis dihapus
 
-1. **Pastikan Python 3.8+ terinstall:**
+## 🚀 Cara Install & Menjalankan (Step by Step)
+
+### 📱 Windows (Langkah Mudah)
+
+#### Step 1: Install Python
 ```bash
+# Cek apakah Python sudah ada
 python --version
+
 # Jika belum ada, download dari https://python.org
+# ⚠️ PENTING: Centang "Add Python to PATH" saat install
 ```
 
-2. **Clone repository:**
+#### Step 2: Download Project
 ```bash
+# Download project (ganti <repository-url> dengan link GitHub yang benar)
 git clone <repository-url>
-cd ika-sayangg
+cd steno
+
+# ATAU download ZIP dari GitHub, lalu extract
 ```
 
-3. **Buat virtual environment:**
+#### Step 3: Buat Virtual Environment (Ruang Terisolasi)
 ```bash
+# Buat environment baru (seperti folder khusus untuk project ini)
 python -m venv .venv
-```
 
-4. **Aktivasi virtual environment:**
-```bash
-# Windows Command Prompt
+# Aktifkan environment
 .venv\Scripts\activate
-
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-
-# Git Bash
-source .venv/Scripts/activate
+# 👆 Jika berhasil, akan ada "(venv)" di depan prompt
 ```
 
-5. **Install dependencies:**
+#### Step 4: Install Library yang Dibutuhkan
 ```bash
+# Update pip dulu
 pip install --upgrade pip
+
+# Install semua library
 pip install -r requirements.txt
+# 👆 Ini akan download Flask, PIL, numpy, dll secara otomatis
 ```
 
-6. **Jalankan aplikasi:**
+#### Step 5: Jalankan Aplikasi
 ```bash
 python app.py
+# 👆 Server akan start dan mencari port kosong (5001-5005)
 ```
 
-7. **Buka browser:**
+#### Step 6: Buka di Browser
 ```
-http://localhost:5000
+http://localhost:5001
+# 👆 Atau port lain yang muncul di terminal
 ```
 
-8. **Untuk menghentikan:**
+#### Step 7: Stop Aplikasi
 ```bash
-# Tekan Ctrl+C untuk stop server
-# Deactivate virtual environment
+# Tekan Ctrl + C di terminal
+# Lalu ketik:
 deactivate
+# 👆 Untuk keluar dari virtual environment
 ```
 
-### 🐧 Ubuntu/Linux
+### 🐧 Ubuntu/Linux (Langkah Mudah)
 
-1. **Update sistem dan install Python:**
+#### Step 1: Install Python & Tools
 ```bash
+# Update sistem dulu
 sudo apt update
+
+# Install Python dan tools yang dibutuhkan
 sudo apt install python3 python3-pip python3-venv git
 ```
 
-2. **Clone repository:**
+#### Step 2: Download Project
 ```bash
+# Clone project
 git clone <repository-url>
-cd ika-sayangg
+cd steno
 ```
 
-3. **Buat virtual environment:**
+#### Step 3: Buat Virtual Environment
 ```bash
+# Buat environment
 python3 -m venv .venv
-```
 
-4. **Aktivasi virtual environment:**
-```bash
+# Aktifkan environment
 source .venv/bin/activate
+# 👆 Jika berhasil, akan ada "(venv)" di depan prompt
 ```
 
-5. **Install system dependencies untuk PyMuPDF:**
+#### Step 4: Install System Dependencies (Untuk PyMuPDF)
 ```bash
+# Install library system yang dibutuhkan
 sudo apt install -y build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev
 ```
 
-6. **Install Python dependencies:**
+#### Step 5: Install Python Libraries
 ```bash
+# Update pip
 pip install --upgrade pip
-pip install -r requirements.txt
 
+# Install semua library
+pip install -r requirements.txt
 ```
 
-7. **Jalankan aplikasi:**
+#### Step 6: Jalankan Aplikasi
 ```bash
 python app.py
+# 👆 Server akan start di port 5001-5005
 ```
 
-8. **Buka browser:**
+#### Step 7: Buka di Browser
 ```
-http://localhost:5000
+http://localhost:5001
+# 👆 Atau port yang muncul di terminal
 ```
 
-9. **Untuk menghentikan aplikasi:**
+#### Step 8: Stop Aplikasi
 ```bash
-# Tekan Ctrl+C untuk stop server
-# Deactivate virtual environment
-deactivate
+# Tekan Ctrl + C untuk stop
+deactivate  # Keluar dari virtual environment
 ```
 
-### 🚀 Quick Start Ubuntu (One-liner)
+### 🚀 One-Liner Ubuntu (Copy-Paste Langsung)
 ```bash
-sudo apt update && sudo apt install -y python3 python3-pip python3-venv git build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev && git clone <repository-url> && cd ika-sayangg && python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && python app.py
+sudo apt update && sudo apt install -y python3 python3-pip python3-venv git build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev && git clone <repository-url> && cd steno && python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && python app.py
 ```
 
-### 🍎 macOS
+### 🍎 macOS (Langkah Mudah)
 
-1. **Install Homebrew (jika belum ada):**
+#### Step 1: Install Tools yang Dibutuhkan
 ```bash
+# Install Homebrew jika belum ada (package manager untuk Mac)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
 
-2. **Install Python dan dependencies:**
-```bash
+# Install Python dan Git
 brew install python3 git
 ```
 
-3. **Clone repository:**
+#### Step 2-7: Sama seperti Linux
 ```bash
+# Download, setup, dan jalankan (sama seperti Ubuntu di atas)
 git clone <repository-url>
-cd ika-sayangg
-```
-
-4. **Buat virtual environment:**
-```bash
-python3 -m venv .venv
-```
-
-5. **Aktivasi virtual environment:**
-```bash
-source .venv/bin/activate
-```
-
-6. **Install dependencies:**
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-7. **Jalankan aplikasi:**
-```bash
-python app.py
-```
-
-8. **Untuk menghentikan:**
-```bash
-# Tekan Ctrl+C untuk stop server
-deactivate
-```
-
-### 🐧 Distribusi Linux Lain
-
-**CentOS/RHEL/Fedora:**
-```bash
-# CentOS/RHEL
-sudo yum install python3 python3-pip python3-devel gcc git
-# Fedora
-sudo dnf install python3 python3-pip python3-devel gcc git
-
-git clone <repository-url>
-cd ika-sayangg
+cd steno
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
@@ -225,353 +296,239 @@ pip install -r requirements.txt
 python app.py
 ```
 
-**Arch Linux:**
-```bash
-sudo pacman -S python python-pip git base-devel
-git clone <repository-url>
-cd ika-sayangg
-python -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-python app.py
+## 📖 Cara Menggunakan Aplikasi (Tutorial Lengkap)
+
+### 🎯 Skenario 1: Membuat Watermark untuk Sertifikat
+
+#### Langkah 1: Buat QR Code
+1. **Buka browser** ke `http://localhost:5001`
+2. **Di bagian "Generate QR Code":**
+   - Ketik: `SERTIFIKAT-VALID-2025-ARIKAL`
+   - Klik **"Generate QR Code"**
+   - QR Code akan muncul di layar
+   - Klik **Download** untuk simpan file .png
+
+#### Langkah 2: Sembunyikan QR ke Sertifikat
+1. **Di bagian "Embed Watermark":**
+   - **Upload Dokumen**: Pilih file sertifikat (.docx atau .pdf)
+   - **Upload QR Code**: Pilih QR yang baru dibuat
+   - Klik **"Sisipkan Watermark"**
+   - Tunggu proses selesai (beberapa detik)
+   - **Download** sertifikat yang sudah di-watermark
+
+#### Langkah 3: Test Validasi
+1. **Di bagian "Validasi Dokumen":**
+   - **Upload** sertifikat yang sudah di-watermark
+   - Klik **"Validasi Dokumen"**
+   - Akan muncul: `SERTIFIKAT-VALID-2025-ARIKAL` ✅ = ASLI
+
+### 🎯 Skenario 2: Cek Dokumen Palsu
+1. **Upload dokumen** yang mencurigakan
+2. **Klik Validasi**
+3. **Jika tidak muncul QR** atau **QR berbeda** = DOKUMEN PALSU/DIUBAH ❌
+
+## � Bagaimana Aplikasi Bekerja? (Detail Teknis Sederhana)
+
+### 🔄 Alur Kerja Aplikasi:
+```
+1. User upload file 📁
+2. File disimpan temporary dengan nama unik 🔄
+3. Aplikasi baca gambar dari dokumen 📖
+4. QR Code disembunyikan ke gambar pakai LSB 🔒
+5. Gambar yang sudah di-watermark dikembalikan ke dokumen ✅
+6. File temporary dihapus otomatis 🗑️
+7. User download hasil ⬇️
 ```
 
-**Alpine Linux:**
+### 🧠 LSB Steganography (Penjelasan Mudah):
+- **LSB = Least Significant Bit** (bit terakhir)
+- Setiap pixel gambar punya 3 warna: Merah, Hijau, **Biru**
+- Kita ubah bit terakhir di channel **Biru** saja
+- Mata manusia tidak bisa melihat perubahan sekecil itu
+- Tapi komputer bisa baca dan ekstrak pesannya
+
+**Contoh:**
+```
+Pixel Biru Original: 11011010 (218)
+Pixel Biru Modified: 11011011 (219) ← Beda 1 angka saja!
+Mata manusia: Sama saja, tidak keliatan
+Komputer: Bisa deteksi ada data tersembunyi
+```
+
+### 📊 Quality Metrics (MSE & PSNR):
+- **MSE (Mean Square Error)**: Seberapa beda gambar asli vs watermarked
+  - Semakin kecil = semakin bagus (hampir sama)
+- **PSNR (Peak Signal-to-Noise Ratio)**: Kualitas gambar
+  - Semakin besar = semakin bagus (>30 dB = excellent)
+
+## 🎯 Contoh Penggunaan di Dunia Nyata
+
+### 1. 🏆 **Sertifikat & Ijazah**
+**Problem**: Banyak ijazah palsu beredar
+**Solusi**: 
+- Universitas embed QR berisi "UNIV-XYZ-2025-VALID"
+- HR tinggal scan → jika muncul QR yang benar = ijazah asli
+
+### 2. 📄 **Kontrak Bisnis**
+**Problem**: Kontrak bisa diubah tanpa sepengetahuan
+**Solusi**:
+- Embed QR berisi hash dokumen asli
+- Jika ada yang ubah kontrak → QR tidak match = ada perubahan
+
+### 3. 🏥 **Dokumen Medis**
+**Problem**: Resep atau hasil lab bisa dipalsukan  
+**Solusi**:
+- Rumah sakit embed QR berisi kode verifikasi
+- Apotek/dokter lain bisa validasi keaslian
+
+### 4. � **Dokumen Keuangan**
+**Problem**: Laporan keuangan bisa dimanipulasi
+**Solusi**:
+- Akuntan embed QR berisi signature digital
+- Auditor bisa cek keaslian laporan
+
+### 5. 🎓 **Tugas & Skripsi** 
+**Problem**: Plagiarisme dan copy-paste
+**Solusi**:
+- Mahasiswa embed QR berisi nama + tanggal submit
+- Dosen bisa track siapa yang submit duluan
+
+## ⚠️ Batasan & Yang Perlu Diperhatikan
+
+### 📏 **Batasan File**
+- **Ukuran maksimal**: 16MB per file (bisa diubah di kode)
+- **Format dokumen**: Hanya .docx dan .pdf
+- **Format QR**: Hanya .png (tidak bisa .jpg atau .gif)
+
+### 🖼️ **Batasan Gambar**
+- **Dokumen harus ada gambar**: Jika tidak ada gambar, tidak bisa di-watermark
+- **Kualitas tergantung gambar asli**: Gambar blur → hasil juga blur
+- **QR otomatis di-resize**: Jika gambar terlalu kecil untuk QR
+
+### 🔌 **Batasan Teknis**
+- **Port 5001-5005**: Jika semua terpakai, aplikasi tidak bisa jalan
+- **PDF Metrics**: Belum ada MSE/PSNR untuk PDF (hanya DOCX)
+- **Browser modern**: Perlu JavaScript aktif
+
+### 💾 **File Management**
+- **Auto cleanup**: File temporary otomatis dihapus (jangan khawatir)
+- **Backup**: File asli tidak berubah, yang di-watermark adalah copy-an
+
+## 🆘 Troubleshooting (Cara Mengatasi Masalah)
+
+### ❌ **Error: "python not found"**
+**Solusi:**
 ```bash
-sudo apk add python3 python3-dev py3-pip git gcc musl-dev libffi-dev jpeg-dev zlib-dev
-git clone <repository-url>
-cd ika-sayangg
+# Windows: Install Python dari python.org dengan centang "Add to PATH"
+# Ubuntu: sudo apt install python3
+# macOS: brew install python3
+```
+
+### ❌ **Error: "Permission denied"**
+**Solusi:**
+```bash
+# Jangan pakai sudo, gunakan virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-python app.py
+source .venv/bin/activate  # Linux/Mac
+.venv\Scripts\activate     # Windows
 ```
 
-## 🔄 Manajemen Virtual Environment
+### ❌ **Error: "Port already in use"**
+**Solusi:** Aplikasi otomatis cari port kosong (5001-5005), tunggu saja
 
-### Mengaktifkan Virtual Environment
-
-**Windows:**
+### ❌ **Error: "No module named 'cv2' atau library lain"**
+**Solusi:**
 ```bash
-# Command Prompt
-.venv\Scripts\activate
-
-# PowerShell
-.venv\Scripts\Activate.ps1
-
-# Git Bash
-source .venv/Scripts/activate
-```
-
-**Linux/macOS:**
-```bash
-source .venv/bin/activate
-```
-
-### Menambah Dependencies Baru
-
-```bash
-# Pastikan virtual environment aktif
-source .venv/bin/activate  # Linux/macOS
-# atau .venv\Scripts\activate  # Windows
-
-# Install package baru
-pip install package-name
-
-# Update requirements.txt
-pip freeze > requirements.txt
-```
-
-### Menghapus Virtual Environment
-
-```bash
-# Deactivate dulu
-deactivate
-
-# Hapus folder .venv
-rm -rf .venv  # Linux/macOS
-# atau rmdir /s .venv  # Windows
-```
-
-### Recreate Virtual Environment
-
-```bash
-# Hapus .venv lama
-rm -rf .venv
-
-# Buat ulang
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
+# Pastikan virtual environment aktif (ada tulisan "venv" di terminal)
+# Lalu install ulang
 pip install -r requirements.txt
 ```
 
-### 📝 Catatan Penting
+### ❌ **Error: "Dokumen tidak mengandung gambar"**
+**Solusi:** 
+- Tambahkan gambar ke dokumen Word/PDF dulu
+- Atau gunakan dokumen lain yang sudah ada gambarnya
 
-- **Folder `.venv`** sudah ada di `.gitignore` untuk menghindari commit virtual environment
-- Selalu aktifkan virtual environment sebelum install/menjalankan aplikasi
-- Gunakan `pip freeze > requirements.txt` untuk update dependencies
-- Virtual environment bersifat lokal per project dan tidak portable
+### ❌ **Error: "QR Code tidak terbaca"**
+**Solusi:**
+- Pastikan file QR format .png
+- Coba buat ulang QR Code
+- Pastikan gambar tidak blur
 
-## 🚀 Production Deployment
-
-### Menggunakan Gunicorn (Ubuntu/Linux)
-
-1. **Aktivasi virtual environment:**
+### ❌ **Error saat install di Ubuntu**
+**Solusi:**
 ```bash
-source .venv/bin/activate
+# Install dependencies system dulu
+sudo apt update
+sudo apt install build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev
 ```
 
-2. **Install Gunicorn:**
-```bash
-pip install gunicorn
-```
+## � Pengembangan Selanjutnya (Future Updates)
 
-3. **Jalankan dengan Gunicorn:**
-```bash
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
-```
+### 📋 **Yang Akan Ditambahkan:**
+- [ ] **Format lebih banyak**: Support .ppt, .odt, .txt
+- [ ] **Multiple QR**: Bisa embed beberapa QR dalam satu dokumen  
+- [ ] **Enkripsi advanced**: QR Code di-encrypt dulu sebelum di-embed
+- [ ] **Batch processing**: Upload banyak file sekaligus
+- [ ] **API REST**: Untuk integrasi dengan aplikasi lain
+- [ ] **Real-time progress**: Progress bar saat processing file besar
+- [ ] **User login**: Sistem user dengan history dokumen
+- [ ] **Database**: Simpan history di database, bukan folder
+- [ ] **Folder management**: Organize dokumen dalam folder-folder
 
-4. **Dengan Nginx (optional):**
-```bash
-sudo apt install nginx
-# Configure nginx reverse proxy ke localhost:5000
-```
+### 🎯 **Kontribusi Welcome!**
+Jika Anda developer dan ingin bantu:
+1. Fork repository ini
+2. Buat branch baru untuk fitur Anda
+3. Submit pull request
+4. Atau buat issue untuk bug report/feature request
 
-### Menggunakan Docker
+## �‍💻 About Developer
 
-1. **Buat Dockerfile:**
-```dockerfile
-FROM python:3.9-slim
+**Arikal Khairat**
+- 🎓 Specialist dalam Digital Steganography  
+- 💻 Expert implementasi LSB (Least Significant Bit)
+- 🔐 Fokus pada Document Security Solutions
+- 📧 Contact: [Your Email Here]
+- 🌐 GitHub: [Your GitHub Profile]
 
-WORKDIR /app
-COPY requirements.txt .
-RUN apt-get update && apt-get install -y \
-    build-essential python3-dev libffi-dev libjpeg-dev zlib1g-dev \
-    && pip install -r requirements.txt
+### 🙏 **Acknowledgments**
+Terima kasih untuk semua library open source yang digunakan:
+- Flask Framework Team
+- Pillow (PIL) Contributors  
+- PyMuPDF Team
+- python-docx Developers
+- qrcode & pyzbar Libraries
 
-COPY . .
-EXPOSE 5000
+## � **License & Disclaimer**
 
-CMD ["python", "app.py"]
-```
+⚖️ **Educational Purpose**: Project ini dibuat untuk tujuan edukasi dan penelitian
 
-2. **Build dan Run:**
-```bash
-docker build -t qr-watermarking .
-docker run -p 5000:5000 qr-watermarking
-```
+⚠️ **Disclaimer**: 
+- Gunakan dengan bijak dan bertanggung jawab
+- Hormati hak cipta dan hukum yang berlaku
+- Developer tidak bertanggung jawab atas penyalahgunaan
+- Pastikan Anda punya hak untuk memodifikasi dokumen yang diproses
 
-### Systemd Service (Ubuntu)
-
-1. **Buat service file:**
-```bash
-sudo nano /etc/systemd/system/qr-watermarking.service
-```
-
-2. **Isi service file:**
-```ini
-[Unit]
-Description=QR Watermarking Tool
-After=network.target
-
-[Service]
-User=www-data
-WorkingDirectory=/path/to/ika-sayangg
-Environment=PATH=/path/to/ika-sayangg/.venv/bin
-ExecStart=/path/to/ika-sayangg/.venv/bin/python app.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-3. **Enable dan start:**
-```bash
-sudo systemctl enable qr-watermarking
-sudo systemctl start qr-watermarking
-```
-
-## 📖 Cara Penggunaan
-
-### Via Web Interface
-
-1. **Generate QR Code**
-   - Masukkan teks yang ingin di-encode
-   - Klik "Generate QR Code"
-   - Download hasil QR Code
-
-2. **Embed Watermark**
-   - Upload dokumen DOCX atau PDF
-   - Upload QR Code PNG
-   - Klik "Sisipkan Watermark"
-   - Download dokumen yang sudah di-watermark
-
-3. **Validasi Dokumen**
-   - Upload dokumen DOCX atau PDF yang sudah di-watermark
-   - Klik "Validasi Dokumen"
-   - Lihat hasil ekstraksi QR Code
-
-### Via Command Line
-
-```bash
-# Generate QR Code
-python main.py generate_qr --data "Arikal Sayangg" --output qr.png
-
-# Embed watermark ke DOCX
-python main.py embed_docx --docx document.docx --qr qr.png --output watermarked.docx
-
-# Embed watermark ke PDF
-python main.py embed_pdf --pdf document.pdf --qr qr.png --output watermarked.pdf
-
-# Extract watermark dari DOCX
-python main.py extract_docx --docx watermarked.docx --output_dir extracted/
-
-# Extract watermark dari PDF
-python main.py extract_pdf --pdf watermarked.pdf --output_dir extracted/
-```
-
-## 🔬 Detail Teknis
-
-### LSB Steganography
-- Modifikasi bit terakhir (LSB) pada channel biru pixel
-- Minimal impact pada kualitas visual gambar
-- Robust terhadap kompresi ringan
-
-### Quality Metrics (DOCX)
-- **MSE (Mean Square Error)**: Mengukur perbedaan pixel
-- **PSNR (Peak Signal-to-Noise Ratio)**: Mengukur kualitas gambar
-- Automatic quality assessment dan interpretasi
-
-### PDF Processing
-- Extract images dari semua halaman PDF
-- Convert berbagai format gambar ke PNG
-- Preserve layout dan posisi gambar
-- Replace images dengan versi watermarked
-
-### Error Handling
-- Deteksi dokumen tanpa gambar
-- Handle berbagai format gambar
-- Automatic QR code resizing
-- Graceful error recovery
-
-## 📁 Struktur Project
-
-```
-ika-sayangg/
-├── app.py                 # Flask web application
-├── main.py               # CLI interface & core functions
-├── lsb_steganography.py  # LSB steganography implementation
-├── qr_utils.py           # QR code utilities
-├── requirements.txt      # Python dependencies
-├── README.md            # Documentation
-├── templates/
-│   └── index.html       # Web interface
-├── static/
-│   ├── uploads/         # Temporary uploads
-│   └── generated/       # Generated files
-└── public/
-    └── documents/       # Processed documents
-```
-
-## 🎯 Use Cases
-
-1. **Document Authentication**: Verifikasi keaslian dokumen penting
-2. **Copyright Protection**: Watermarking untuk dokumen rahasia
-3. **Digital Forensics**: Tracking sumber dokumen
-4. **Academic Integrity**: Mencegah plagiarism dokumen
-5. **Legal Documents**: Autentikasi kontrak dan surat resmi
-
-## ⚠️ Batasan
-
-1. **File PDF**: MSE/PSNR calculation belum diimplementasikan
-2. **Image Quality**: Hasil bergantung kualitas gambar asli
-3. **File Size**: Terbatas oleh kapasitas server (16MB default)
-4. **QR Size**: QR Code akan di-resize otomatis jika gambar terlalu kecil
-
-## 🔧 Troubleshooting
-
-### Ubuntu/Linux Issues
-
-**Error: "Python.h: No such file or directory"**
-```bash
-sudo apt install python3-dev
-```
-
-**Error: "Failed building wheel for PyMuPDF"**
-```bash
-sudo apt install build-essential python3-dev libffi-dev
-pip install --upgrade pip setuptools wheel
-pip install PyMuPDF
-```
-
-**Error: "Permission denied" saat install**
-```bash
-# Gunakan virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-**Error: "zbar shared library not found"**
-```bash
-sudo apt install libzbar0
-```
-
-**Error: "No module named '_tkinter'"**
-```bash
-sudo apt install python3-tk
-```
-
-### Windows Issues
-
-**Error: "Microsoft Visual C++ 14.0 is required"**
-- Download dan install Microsoft C++ Build Tools
-- Atau install Visual Studio Community
-
-**Error: "pip is not recognized"**
-- Pastikan Python dan pip sudah ada di PATH
-- Reinstall Python dengan opsi "Add to PATH"
-
-### General Issues
-
-**Port 5000 sudah digunakan:**
-```bash
-# Ganti port di app.py
-app.run(host='0.0.0.0', port=8080, debug=True)
-```
-
-**Memory error saat processing PDF besar:**
-- Gunakan PDF dengan ukuran lebih kecil (<16MB)
-- Compress PDF terlebih dahulu
-
-**QR Code tidak terbaca:**
-- Pastikan kualitas gambar cukup baik
-- Coba dengan gambar yang lebih besar
-- Periksa format file (harus PNG untuk QR input)
-
-## 🔮 Future Development
-
-- [ ] Support format dokumen lain (PPT, ODT)
-- [ ] Multiple watermark patterns
-- [ ] Advanced encryption untuk QR content
-- [ ] Batch processing multiple files
-- [ ] API endpoints untuk integrasi
-- [ ] PDF quality metrics implementation
-
-## 👨‍💻 Developer
-
-**Arikal Sayangg**
-- Specialized in Digital Steganography
-- LSB Implementation Expert
-- Document Security Solutions
-
-## 📄 License
-
-This project is created for educational and research purposes. Please use responsibly and respect copyright laws.
+📜 **License**: MIT License (atau sesuai kebutuhan project Anda)
 
 ---
-*"Securing documents with invisible watermarks"* ✨
+
+## 🎉 **Selamat Mencoba!**
+
+🚀 **Quick Start:**
+1. Install Python
+2. Clone project  
+3. `python -m venv .venv`
+4. `source .venv/bin/activate` (Linux/Mac) atau `.venv\Scripts\activate` (Windows)
+5. `pip install -r requirements.txt`
+6. `python app.py`
+7. Buka `http://localhost:5001`
+
+---
+*"Securing documents with invisible watermarks through advanced LSB steganography"* ✨
+
+**🏠 Repository**: `/workspaces/steno/`  
+**🖥️ Main Application**: `app.py` (Flask Web Server)  
+**🔧 Development Mode**: Multi-port auto-detection (5001-5005)
+**📅 Last Updated**: July 2025
