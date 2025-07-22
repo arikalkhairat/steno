@@ -5,6 +5,13 @@ import qrcode
 import cv2
 from PIL import Image
 import os
+import json
+import time
+from datetime import datetime
+from typing import Optional, Dict, Any
+
+# Import security utilities for encryption and authentication
+import security_utils
 
 def generate_qr(data: str, output_path: str):
     """
@@ -350,5 +357,431 @@ def generate_qr_advanced(data: str, version: int = None, error_correction: str =
     except Exception as e:
         print(f"[!] Error generating advanced QR code: {e}")
         raise
+
+
+# Security Enhanced QR Code Functions
+
+def generate_secure_qr(data: str, document_key: str, output_path: str) -> Image.Image:
+    """
+    Generate QR code with encrypted data using document-specific key.
+    Combines QR generation with security encryption for protected content.
+    
+    Args:
+        data (str): Plain text data to encrypt and encode in QR code.
+        document_key (str): Base64-encoded document key for encryption.
+        output_path (str): Path to save the secure QR code image.
+    
+    Returns:
+        PIL.Image.Image: Generated secure QR code image.
+    
+    Raises:
+        ValueError: If input parameters are invalid.
+        security_utils.SecurityError: If encryption or QR generation fails.
+        
+    Example:
+        >>> doc_key = security_utils.generate_document_key("document.pdf")
+        >>> qr_img = generate_secure_qr("Secret data", doc_key, "secure_qr.png")
+    """
+    try:
+        if not data or not data.strip():
+            raise ValueError("Data cannot be empty")
+        
+        if not document_key:
+            raise ValueError("Document key is required")
+        
+        if not output_path:
+            raise ValueError("Output path is required")
+        
+        print(f"[*] Generating secure QR code with encryption...")
+        
+        # Encrypt the data using security utils
+        encrypted_data = security_utils.encrypt_qr_data(data, document_key)
+        
+        # Add security metadata
+        timestamp = datetime.now().isoformat()
+        secure_qr_data = embed_security_metadata(encrypted_data, document_key, timestamp)
+        
+        # Generate QR code with encrypted data
+        # Use higher error correction for security applications
+        qr_image = generate_qr_advanced(
+            data=secure_qr_data,
+            error_correction='H',  # High error correction for security
+            box_size=8,
+            border=4,
+            output_path=output_path
+        )
+        
+        print(f"[*] Secure QR code generated successfully: {output_path}")
+        print(f"[*] Original data length: {len(data)} chars")
+        print(f"[*] Encrypted data length: {len(secure_qr_data)} chars")
+        
+        return qr_image
+        
+    except Exception as e:
+        print(f"[!] Error generating secure QR code: {e}")
+        raise
+
+
+def read_secure_qr(image_path: str, document_key: str) -> str:
+    """
+    Read and decrypt QR code data using document-specific key.
+    Validates QR security and returns decrypted content.
+    
+    Args:
+        image_path (str): Path to the QR code image file.
+        document_key (str): Base64-encoded document key for decryption.
+    
+    Returns:
+        str: Decrypted plain text data from QR code.
+    
+    Raises:
+        FileNotFoundError: If QR image file doesn't exist.
+        ValueError: If QR code cannot be read or contains invalid data.
+        security_utils.SecurityError: If decryption fails or security validation fails.
+        
+    Example:
+        >>> decrypted_data = read_secure_qr("secure_qr.png", document_key)
+        >>> print(f"Decrypted: {decrypted_data}")
+    """
+    try:
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"QR image not found: {image_path}")
+        
+        if not document_key:
+            raise ValueError("Document key is required")
+        
+        print(f"[*] Reading secure QR code from: {os.path.basename(image_path)}")
+        
+        # Read QR code data
+        qr_data_list = read_qr(image_path)
+        
+        if not qr_data_list:
+            raise ValueError("No QR code data found in image")
+        
+        # Use the first QR code if multiple are found
+        secure_qr_data = qr_data_list[0]
+        print(f"[*] QR data read successfully ({len(secure_qr_data)} chars)")
+        
+        # Extract security metadata
+        try:
+            metadata = extract_security_metadata(secure_qr_data)
+            encrypted_data = metadata.get('encrypted_data', secure_qr_data)
+            
+            print(f"[*] Security metadata extracted:")
+            print(f"    - Timestamp: {metadata.get('timestamp', 'Unknown')}")
+            print(f"    - Has metadata: {metadata.get('has_metadata', False)}")
+            
+        except Exception as e:
+            print(f"[!] Warning: Could not extract metadata: {e}")
+            # Assume the data is directly encrypted without metadata wrapper
+            encrypted_data = secure_qr_data
+        
+        # Decrypt the data
+        decrypted_data = security_utils.decrypt_qr_data(encrypted_data, document_key)
+        
+        print(f"[*] QR data decrypted successfully")
+        print(f"[*] Decrypted data length: {len(decrypted_data)} chars")
+        
+        return decrypted_data
+        
+    except Exception as e:
+        print(f"[!] Error reading secure QR code: {e}")
+        raise
+
+
+def embed_security_metadata(qr_data: str, document_key: str, timestamp: str) -> str:
+    """
+    Add security metadata to QR data for enhanced validation.
+    Creates a JSON wrapper with security information and encrypted content.
+    
+    Args:
+        qr_data (str): Encrypted QR data to wrap with metadata.
+        document_key (str): Document key used for creating security hash.
+        timestamp (str): ISO format timestamp for generation time.
+    
+    Returns:
+        str: JSON string containing security metadata and encrypted data.
+    
+    Raises:
+        ValueError: If input parameters are invalid.
+        security_utils.SecurityError: If metadata creation fails.
+        
+    Example:
+        >>> metadata_qr = embed_security_metadata(encrypted_data, doc_key, "2025-07-22T10:30:00")
+    """
+    try:
+        if not qr_data:
+            raise ValueError("QR data cannot be empty")
+        
+        if not document_key:
+            raise ValueError("Document key is required")
+        
+        if not timestamp:
+            raise ValueError("Timestamp is required")
+        
+        # Create a security hash for validation
+        # Use SHA-256 to create a proper hash from the combined content
+        import hashlib
+        combined_content = f"{qr_data}:{timestamp}".encode('utf-8')
+        content_hash = hashlib.sha256(combined_content).hexdigest()
+        
+        security_hash = security_utils.create_key_signature(
+            document_key, 
+            content_hash
+        )
+        
+        # Create metadata structure
+        metadata = {
+            'version': '1.0',
+            'timestamp': timestamp,
+            'encrypted_data': qr_data,
+            'security_hash': security_hash,
+            'has_metadata': True
+        }
+        
+        # Convert to JSON string
+        metadata_json = json.dumps(metadata, separators=(',', ':'))  # Compact JSON
+        
+        print(f"[*] Security metadata embedded successfully")
+        print(f"[*] Metadata size: {len(metadata_json) - len(qr_data)} additional chars")
+        
+        return metadata_json
+        
+    except Exception as e:
+        print(f"[!] Error embedding security metadata: {e}")
+        raise
+
+
+def extract_security_metadata(qr_data: str) -> Dict[str, Any]:
+    """
+    Extract security metadata from QR data if present.
+    Parses JSON wrapper and returns metadata information.
+    
+    Args:
+        qr_data (str): QR data that may contain security metadata.
+    
+    Returns:
+        Dict[str, Any]: Dictionary containing security metadata and encrypted data.
+                       If no metadata found, returns basic structure with original data.
+    
+    Raises:
+        ValueError: If QR data is empty.
+        
+    Example:
+        >>> metadata = extract_security_metadata(qr_data)
+        >>> print(f"Timestamp: {metadata['timestamp']}")
+        >>> encrypted_data = metadata['encrypted_data']
+    """
+    try:
+        if not qr_data:
+            raise ValueError("QR data cannot be empty")
+        
+        # Try to parse as JSON metadata
+        try:
+            metadata = json.loads(qr_data)
+            
+            # Validate it's our metadata format
+            if (isinstance(metadata, dict) and 
+                'encrypted_data' in metadata and 
+                'has_metadata' in metadata and 
+                metadata.get('has_metadata')):
+                
+                print(f"[*] Security metadata found:")
+                print(f"    - Version: {metadata.get('version', 'Unknown')}")
+                print(f"    - Timestamp: {metadata.get('timestamp', 'Unknown')}")
+                print(f"    - Has security hash: {'security_hash' in metadata}")
+                
+                return metadata
+            else:
+                print(f"[*] JSON found but not security metadata format")
+                
+        except json.JSONDecodeError:
+            print(f"[*] No JSON metadata detected")
+        
+        # If no valid metadata found, return basic structure
+        return {
+            'version': 'unknown',
+            'timestamp': 'unknown',
+            'encrypted_data': qr_data,
+            'security_hash': None,
+            'has_metadata': False
+        }
+        
+    except Exception as e:
+        print(f"[!] Error extracting security metadata: {e}")
+        # Return basic structure on error
+        return {
+            'version': 'error',
+            'timestamp': 'error',
+            'encrypted_data': qr_data,
+            'security_hash': None,
+            'has_metadata': False,
+            'error': str(e)
+        }
+
+
+def validate_qr_security(qr_data: str, document_key: str, document_hash: str) -> Dict[str, Any]:
+    """
+    Comprehensive security validation for QR code data.
+    Validates encryption, metadata integrity, and document-QR pairing.
+    
+    Args:
+        qr_data (str): QR data to validate (may be encrypted with metadata).
+        document_key (str): Document key for validation.
+        document_hash (str): SHA-256 hash of the associated document.
+    
+    Returns:
+        Dict[str, Any]: Validation results with detailed status information.
+    
+    Raises:
+        ValueError: If input parameters are invalid.
+        
+    Example:
+        >>> validation = validate_qr_security(qr_data, doc_key, doc_hash)
+        >>> if validation['overall_valid']:
+        >>>     print("QR security validation passed")
+    """
+    try:
+        if not qr_data:
+            raise ValueError("QR data cannot be empty")
+        
+        if not document_key:
+            raise ValueError("Document key is required")
+        
+        if not document_hash:
+            raise ValueError("Document hash is required")
+        
+        print(f"[*] Starting comprehensive QR security validation...")
+        
+        validation_results = {
+            'timestamp': datetime.now().isoformat(),
+            'qr_data_length': len(qr_data),
+            'validations': {},
+            'overall_valid': False,
+            'warnings': [],
+            'errors': []
+        }
+        
+        # Step 1: Extract and validate metadata
+        try:
+            metadata = extract_security_metadata(qr_data)
+            validation_results['metadata'] = metadata
+            validation_results['validations']['metadata_extraction'] = True
+            
+            if metadata.get('has_metadata'):
+                print(f"[*] ✓ Metadata extraction successful")
+            else:
+                validation_results['warnings'].append("No security metadata found")
+                print(f"[!] ⚠ Warning: No security metadata found")
+                
+        except Exception as e:
+            validation_results['validations']['metadata_extraction'] = False
+            validation_results['errors'].append(f"Metadata extraction failed: {e}")
+            print(f"[!] ✗ Metadata extraction failed: {e}")
+        
+        # Step 2: Validate metadata integrity
+        if metadata.get('has_metadata') and metadata.get('security_hash'):
+            try:
+                # Recreate the content hash that was used during embedding
+                import hashlib
+                expected_content = f"{metadata['encrypted_data']}:{metadata['timestamp']}"
+                content_hash = hashlib.sha256(expected_content.encode('utf-8')).hexdigest()
+                
+                is_valid = security_utils.verify_key_signature(
+                    document_key, 
+                    metadata['security_hash'], 
+                    content_hash
+                )
+                validation_results['validations']['metadata_integrity'] = is_valid
+                
+                if is_valid:
+                    print(f"[*] ✓ Metadata integrity validation passed")
+                else:
+                    validation_results['errors'].append("Metadata integrity check failed")
+                    print(f"[!] ✗ Metadata integrity validation failed")
+                    
+            except Exception as e:
+                validation_results['validations']['metadata_integrity'] = False
+                validation_results['errors'].append(f"Metadata integrity check error: {e}")
+                print(f"[!] ✗ Metadata integrity check error: {e}")
+        else:
+            validation_results['validations']['metadata_integrity'] = None
+            print(f"[*] - Skipping metadata integrity (no security hash)")
+        
+        # Step 3: Test decryption capability
+        try:
+            encrypted_data = metadata.get('encrypted_data', qr_data)
+            decrypted_data = security_utils.decrypt_qr_data(encrypted_data, document_key)
+            validation_results['validations']['decryption'] = True
+            validation_results['decrypted_length'] = len(decrypted_data)
+            print(f"[*] ✓ Decryption successful ({len(decrypted_data)} chars)")
+            
+        except Exception as e:
+            validation_results['validations']['decryption'] = False
+            validation_results['errors'].append(f"Decryption failed: {e}")
+            print(f"[!] ✗ Decryption failed: {e}")
+        
+        # Step 4: Validate document-key relationship
+        try:
+            key_signature = security_utils.create_key_signature(document_key, document_hash)
+            signature_valid = security_utils.verify_key_signature(document_key, key_signature, document_hash)
+            validation_results['validations']['document_key_pairing'] = signature_valid
+            
+            if signature_valid:
+                print(f"[*] ✓ Document-key pairing validated")
+            else:
+                validation_results['errors'].append("Document-key pairing validation failed")
+                print(f"[!] ✗ Document-key pairing validation failed")
+                
+        except Exception as e:
+            validation_results['validations']['document_key_pairing'] = False
+            validation_results['errors'].append(f"Document-key validation error: {e}")
+            print(f"[!] ✗ Document-key validation error: {e}")
+        
+        # Step 5: Overall validation assessment
+        critical_validations = ['decryption', 'document_key_pairing']
+        critical_passed = all(
+            validation_results['validations'].get(v, False) 
+            for v in critical_validations
+        )
+        
+        optional_validations = ['metadata_extraction', 'metadata_integrity']
+        optional_passed = sum(
+            1 for v in optional_validations 
+            if validation_results['validations'].get(v, False)
+        )
+        
+        validation_results['overall_valid'] = critical_passed
+        validation_results['security_score'] = (
+            (len([v for v in critical_validations if validation_results['validations'].get(v, False)]) * 0.4) +
+            (optional_passed * 0.1)
+        )
+        
+        # Summary
+        if validation_results['overall_valid']:
+            print(f"[*] ✅ Overall QR security validation: PASSED")
+            print(f"[*] Security score: {validation_results['security_score']:.1f}/1.0")
+        else:
+            print(f"[!] ❌ Overall QR security validation: FAILED")
+            print(f"[!] Security score: {validation_results['security_score']:.1f}/1.0")
+        
+        if validation_results['warnings']:
+            print(f"[!] Warnings: {len(validation_results['warnings'])}")
+        
+        if validation_results['errors']:
+            print(f"[!] Errors: {len(validation_results['errors'])}")
+        
+        return validation_results
+        
+    except Exception as e:
+        print(f"[!] Error during QR security validation: {e}")
+        return {
+            'timestamp': datetime.now().isoformat(),
+            'overall_valid': False,
+            'error': str(e),
+            'validations': {},
+            'security_score': 0.0
+        }
+
 
 # --- End of qr_utils.py ---

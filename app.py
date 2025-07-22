@@ -12,7 +12,11 @@ import fitz  # PyMuPDF
 
 from main import extract_images_from_docx, embed_watermark_to_docx, extract_images_from_pdf, embed_watermark_to_pdf, analyze_qr_options
 from qr_utils import (read_qr, analyze_text_encoding, calculate_qr_capacity, 
-                      get_optimal_qr_version, compare_qr_configurations, generate_qr_advanced)
+                      get_optimal_qr_version, compare_qr_configurations, generate_qr_advanced,
+                      generate_secure_qr, read_secure_qr, validate_qr_security)
+
+# Import security utilities
+import security_utils
 
 # Inisialisasi aplikasi Flask
 app = Flask(__name__)
@@ -450,7 +454,7 @@ def embed_document_route():
         error_msg = "File Dokumen dan File QR Code diperlukan."
         print(f"[ERROR] /embed_document: {error_msg}")
         print(f"[ERROR] Missing fields: docxFileEmbed in files: {'docxFileEmbed' in request.files}, qrFileEmbed in files: {'qrFileEmbed' in request.files}")
-        return jsonify({"success": False, "message": error_msg}), 400
+        return jsonify({"success": False, "message": error_msg, "security_status": "missing_files"}), 400
 
     doc_file = request.files['docxFileEmbed']
     qr_file = request.files['qrFileEmbed']
@@ -462,6 +466,10 @@ def embed_document_route():
     border_size = request.form.get('border_size', '4')
     auto_optimize = request.form.get('auto_optimize') == 'on'
     
+    # NEW: Extract security settings
+    validate_security = request.form.get('validate_security', 'false').lower() == 'true'
+    document_key = request.form.get('document_key', None)  # Optional security key
+    
     # Convert string parameters to appropriate types
     try:
         box_size = int(box_size)
@@ -469,7 +477,7 @@ def embed_document_route():
         if qr_version != 'auto':
             qr_version = int(qr_version)
     except ValueError:
-        return jsonify({"success": False, "message": "Invalid QR configuration parameters"}), 400
+        return jsonify({"success": False, "message": "Invalid QR configuration parameters", "security_status": "invalid_params"}), 400
     
     # Build QR configuration object
     qr_config = {
@@ -592,10 +600,65 @@ def embed_document_route():
         # Run the appropriate embed function directly to get the processed images
         try:
             print("[*] Mendapatkan informasi gambar yang diproses")
+            
+            # NEW: Security validation variables
+            security_validation_results = None
+            
+            # Perform security validation if requested
+            if validate_security:
+                print("[*] Performing security validation before embedding...")
+                try:
+                    # Generate document key if not provided
+                    if not document_key:
+                        document_key = security_utils.generate_document_key(doc_temp_path)
+                        print("[*] Document key generated for security validation")
+                    
+                    # Read QR data and validate
+                    qr_data_list = read_qr(qr_temp_path)
+                    if qr_data_list:
+                        qr_data = qr_data_list[0]
+                        document_hash = security_utils.generate_document_hash(doc_temp_path)
+                        
+                        validation_results = validate_qr_security(qr_data, document_key, document_hash)
+                        security_validation_results = validation_results
+                        
+                        if not validation_results['overall_valid']:
+                            print("[!] Security validation failed")
+                            # Clean up temp files
+                            if os.path.exists(doc_temp_path):
+                                os.remove(doc_temp_path)
+                            if os.path.exists(qr_temp_path):
+                                os.remove(qr_temp_path)
+                            
+                            return jsonify({
+                                "success": False,
+                                "message": "Security validation failed - QR code is not authorized for this document",
+                                "security_status": "validation_failed",
+                                "validation_results": validation_results
+                            }), 400
+                        else:
+                            print("[*] Security validation passed")
+                    else:
+                        print("[!] Warning: Could not read QR code for validation")
+                        
+                except Exception as security_e:
+                    print(f"[!] Security validation error: {security_e}")
+                    # Continue without security validation but log the error
+                    security_validation_results = {"error": str(security_e), "overall_valid": False}
+            
+            # Call embedding functions with security parameters
             if is_docx:
-                process_result = embed_watermark_to_docx(doc_temp_path, qr_temp_path, stego_doc_output_path)
+                process_result = embed_watermark_to_docx(
+                    doc_temp_path, qr_temp_path, stego_doc_output_path,
+                    validate_security=validate_security,
+                    document_key=document_key
+                )
             else:  # is_pdf
-                process_result = embed_watermark_to_pdf(doc_temp_path, qr_temp_path, stego_doc_output_path)
+                process_result = embed_watermark_to_pdf(
+                    doc_temp_path, qr_temp_path, stego_doc_output_path,
+                    validate_security=validate_security,
+                    document_key=document_key
+                )
             
             # Get processed images info if available
             processed_images = []
@@ -682,7 +745,12 @@ def embed_document_route():
                 "original": qr_config,
                 "optimized": optimized_qr_config,
                 "auto_optimization_applied": auto_optimize and (optimized_qr_config != qr_config)
-            }
+            },
+            # NEW: Security information
+            "security_validation": security_validation_results,
+            "security_enabled": validate_security,
+            "document_key": document_key if validate_security else None,
+            "security_status": "embed_complete_secure" if validate_security and security_validation_results and security_validation_results.get('overall_valid') else "embed_complete"
         })
     else:
         # Hapus file temporary jika terjadi error
@@ -710,19 +778,23 @@ def embed_document_route():
 @app.route('/extract_document', methods=['POST'])
 def extract_document_route():
     if 'docxFileValidate' not in request.files:
-        return jsonify({"success": False, "message": "File Dokumen diperlukan untuk validasi."}), 400
+        return jsonify({"success": False, "message": "File Dokumen diperlukan untuk validasi.", "security_status": "missing_document"}), 400
 
     doc_file = request.files['docxFileValidate']
 
     if doc_file.filename == '':
-        return jsonify({"success": False, "message": "Nama file tidak boleh kosong."}), 400
+        return jsonify({"success": False, "message": "Nama file tidak boleh kosong.", "security_status": "no_file_selected"}), 400
+    
+    # NEW: Extract security parameters
+    validate_security = request.form.get('validate_security', 'false').lower() == 'true'
+    document_key = request.form.get('document_key', None)  # Optional security key
     
     # Check if it's either DOCX or PDF
     is_docx = allowed_file(doc_file.filename, ALLOWED_DOCX_EXTENSIONS)
     is_pdf = allowed_file(doc_file.filename, ALLOWED_PDF_EXTENSIONS)
     
     if not (doc_file and (is_docx or is_pdf)):
-        return jsonify({"success": False, "message": "Format Dokumen harus .docx atau .pdf"}), 400
+        return jsonify({"success": False, "message": "Format Dokumen harus .docx atau .pdf", "security_status": "invalid_file_type"}), 400
 
     # Generate unique filenames based on document type
     file_extension = '.docx' if is_docx else '.pdf'
@@ -746,13 +818,83 @@ def extract_document_route():
 
     if result["success"]:
         extracted_qrs_info = []
+        security_results = []
+        
         if os.path.exists(output_extraction_dir_path) and os.path.isdir(output_extraction_dir_path):
+            # Process extracted QR codes
             for filename in os.listdir(output_extraction_dir_path):
                 if filename.lower().endswith('.png'):
-                    extracted_qrs_info.append({
+                    qr_info = {
                         "filename": filename,
                         "url": f"/static/generated/{output_extraction_dir_name}/{filename}"
-                    })
+                    }
+                    
+                    # NEW: Security verification for extracted QR
+                    if validate_security:
+                        try:
+                            qr_file_path = os.path.join(output_extraction_dir_path, filename)
+                            
+                            # Generate document key if not provided
+                            if not document_key:
+                                doc_key_for_validation = security_utils.generate_document_key(doc_temp_path)
+                            else:
+                                doc_key_for_validation = document_key
+                            
+                            # Read and validate QR code
+                            qr_data_list = read_qr(qr_file_path)
+                            if qr_data_list:
+                                qr_data = qr_data_list[0]
+                                document_hash = security_utils.generate_document_hash(doc_temp_path)
+                                
+                                # Perform security validation
+                                validation_results = validate_qr_security(qr_data, doc_key_for_validation, document_hash)
+                                
+                                # Try to decrypt QR if it's secure
+                                decrypted_data = None
+                                decryption_success = False
+                                try:
+                                    decrypted_data = read_secure_qr(qr_file_path, doc_key_for_validation)
+                                    decryption_success = True
+                                except Exception:
+                                    # QR might be plain text
+                                    decrypted_data = qr_data
+                                
+                                security_info = {
+                                    "filename": filename,
+                                    "validation_results": validation_results,
+                                    "is_authorized": validation_results['overall_valid'],
+                                    "security_score": validation_results.get('security_score', 0),
+                                    "decrypted_data": decrypted_data,
+                                    "decryption_success": decryption_success,
+                                    "original_qr_data_length": len(qr_data)
+                                }
+                                
+                                # Add security info to QR info
+                                qr_info.update({
+                                    "security_validation": validation_results['overall_valid'],
+                                    "decrypted_data": decrypted_data,
+                                    "is_encrypted": decryption_success,
+                                    "security_score": validation_results.get('security_score', 0)
+                                })
+                                
+                                security_results.append(security_info)
+                                
+                            else:
+                                security_results.append({
+                                    "filename": filename,
+                                    "error": "Could not read QR code data",
+                                    "is_authorized": False
+                                })
+                                
+                        except Exception as security_e:
+                            print(f"[!] Security validation error for {filename}: {security_e}")
+                            security_results.append({
+                                "filename": filename,
+                                "error": str(security_e),
+                                "is_authorized": False
+                            })
+                    
+                    extracted_qrs_info.append(qr_info)
 
         if not extracted_qrs_info and "Tidak ada gambar yang ditemukan" not in result["stdout"]:
             pass
@@ -762,12 +904,34 @@ def extract_document_route():
             os.remove(doc_temp_path)
 
         print(f"[*] Proses extract_{'docx' if is_docx else 'pdf'} berhasil")
+        
+        # Calculate security summary if security validation was performed
+        security_summary = None
+        if validate_security and security_results:
+            authorized_count = sum(1 for result in security_results if result.get('is_authorized', False))
+            total_count = len(security_results)
+            avg_security_score = sum(result.get('security_score', 0) for result in security_results) / total_count if total_count > 0 else 0
+            
+            security_summary = {
+                "total_qr_codes": total_count,
+                "authorized_qr_codes": authorized_count,
+                "unauthorized_qr_codes": total_count - authorized_count,
+                "average_security_score": round(avg_security_score, 2),
+                "validation_enabled": True
+            }
+        
         return jsonify({
             "success": True,
             "message": "Proses ekstraksi selesai.",
             "extracted_qrs": extracted_qrs_info,
             "log": result["stdout"],
-            "document_type": "docx" if is_docx else "pdf"
+            "document_type": "docx" if is_docx else "pdf",
+            # NEW: Security information
+            "security_validation": validate_security,
+            "security_results": security_results if validate_security else None,
+            "security_summary": security_summary,
+            "document_key": document_key if validate_security else None,
+            "security_status": "extraction_complete_secure" if validate_security else "extraction_complete"
         })
     else:
         # Hapus file temporary jika terjadi error
@@ -838,6 +1002,463 @@ def list_documents():
 def process_details():
     """Render the process details page."""
     return render_template('process_details.html')
+
+
+# ====== NEW SECURITY-RELATED API ENDPOINTS ======
+
+@app.route('/generate_document_key', methods=['POST'])
+def generate_document_key():
+    """Generate unique security key for uploaded document."""
+    try:
+        # Check if a document file is uploaded
+        if 'document' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No document file uploaded',
+                'security_status': 'missing_file'
+            }), 400
+
+        document_file = request.files['document']
+        if document_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No document file selected',
+                'security_status': 'no_file_selected'
+            }), 400
+
+        # Get additional data if provided
+        additional_data = request.form.get('additional_data', '')
+
+        # Check file type
+        if not (allowed_file(document_file.filename, ALLOWED_DOCX_EXTENSIONS) or 
+                allowed_file(document_file.filename, ALLOWED_PDF_EXTENSIONS)):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid file type. Only DOCX and PDF files are allowed.',
+                'security_status': 'invalid_file_type'
+            }), 400
+
+        # Save the uploaded document temporarily
+        temp_filename = f"temp_doc_{uuid.uuid4().hex}_{document_file.filename}"
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+        document_file.save(temp_path)
+
+        try:
+            # Generate document key
+            document_key = security_utils.generate_document_key(temp_path, additional_data)
+            
+            # Generate document hash for validation
+            document_hash = security_utils.generate_document_hash(temp_path)
+            
+            # Create key signature for integrity
+            key_signature = security_utils.create_key_signature(document_key, document_hash)
+            
+            # Validate security parameters
+            security_status = security_utils.validate_security_parameters()
+            
+            return jsonify({
+                'success': True,
+                'document_key': document_key,
+                'document_hash': document_hash,
+                'key_signature': key_signature,
+                'document_name': document_file.filename,
+                'additional_data': additional_data,
+                'security_status': 'key_generated',
+                'security_validation': security_status,
+                'message': 'Document security key generated successfully'
+            })
+
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'security_status': 'generation_failed'
+        }), 500
+
+
+@app.route('/generate_secure_qr', methods=['POST'])
+def generate_secure_qr_endpoint():
+    """Generate QR with encryption using document key."""
+    try:
+        # Get required parameters
+        qr_data = request.form.get('data')
+        document_key = request.form.get('document_key')
+        
+        if not qr_data:
+            return jsonify({
+                'success': False,
+                'error': 'QR data is required',
+                'security_status': 'missing_data'
+            }), 400
+        
+        if not document_key:
+            return jsonify({
+                'success': False,
+                'error': 'Document key is required for secure QR generation',
+                'security_status': 'missing_key'
+            }), 400
+
+        # Generate unique filename for the secure QR
+        qr_filename = f"secure_qr_{uuid.uuid4().hex}.png"
+        qr_path = os.path.join(app.config['GENERATED_FOLDER'], qr_filename)
+
+        # Generate secure QR code
+        qr_image = generate_secure_qr(qr_data, document_key, qr_path)
+        
+        # Get QR image dimensions for response
+        qr_width, qr_height = qr_image.size
+        
+        return jsonify({
+            'success': True,
+            'qr_filename': qr_filename,
+            'qr_path': qr_path,
+            'qr_dimensions': {'width': qr_width, 'height': qr_height},
+            'original_data_length': len(qr_data),
+            'security_status': 'secure_qr_generated',
+            'encrypted': True,
+            'message': 'Secure QR code generated successfully'
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'security_status': 'secure_generation_failed'
+        }), 500
+
+
+@app.route('/validate_qr_security', methods=['POST'])
+def validate_qr_security_endpoint():
+    """Validate if QR belongs to specific document."""
+    try:
+        # Check for uploaded QR image
+        if 'qr_image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No QR image file uploaded',
+                'security_status': 'missing_qr_image'
+            }), 400
+
+        # Check for uploaded document
+        if 'document' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No document file uploaded',
+                'security_status': 'missing_document'
+            }), 400
+
+        qr_file = request.files['qr_image']
+        document_file = request.files['document']
+        document_key = request.form.get('document_key')  # Optional
+        detailed = request.form.get('detailed', 'false').lower() == 'true'
+
+        # Validate files
+        if qr_file.filename == '' or document_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No files selected',
+                'security_status': 'no_files_selected'
+            }), 400
+
+        # Check file types
+        if not allowed_file(qr_file.filename, ALLOWED_IMAGE_EXTENSIONS):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid QR image type. Only PNG files are allowed.',
+                'security_status': 'invalid_qr_type'
+            }), 400
+
+        if not (allowed_file(document_file.filename, ALLOWED_DOCX_EXTENSIONS) or 
+                allowed_file(document_file.filename, ALLOWED_PDF_EXTENSIONS)):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid document type. Only DOCX and PDF files are allowed.',
+                'security_status': 'invalid_document_type'
+            }), 400
+
+        # Save uploaded files temporarily
+        qr_temp_filename = f"temp_qr_{uuid.uuid4().hex}.png"
+        qr_temp_path = os.path.join(app.config['UPLOAD_FOLDER'], qr_temp_filename)
+        qr_file.save(qr_temp_path)
+
+        doc_temp_filename = f"temp_doc_{uuid.uuid4().hex}_{document_file.filename}"
+        doc_temp_path = os.path.join(app.config['UPLOAD_FOLDER'], doc_temp_filename)
+        document_file.save(doc_temp_path)
+
+        try:
+            # Generate document key if not provided
+            if not document_key:
+                document_key = security_utils.generate_document_key(doc_temp_path)
+
+            # Read QR code data
+            qr_data_list = read_qr(qr_temp_path)
+            if not qr_data_list:
+                return jsonify({
+                    'success': False,
+                    'error': 'No QR code data found in image',
+                    'security_status': 'qr_read_failed'
+                }), 400
+
+            qr_data = qr_data_list[0]
+            document_hash = security_utils.generate_document_hash(doc_temp_path)
+
+            # Perform validation
+            if detailed:
+                validation_results = validate_qr_security(qr_data, document_key, document_hash)
+                
+                # Try to decrypt QR data
+                decrypted_data = None
+                decryption_success = False
+                try:
+                    decrypted_data = read_secure_qr(qr_temp_path, document_key)
+                    decryption_success = True
+                except Exception:
+                    pass
+
+                return jsonify({
+                    'success': True,
+                    'validation_results': validation_results,
+                    'overall_valid': validation_results['overall_valid'],
+                    'security_score': validation_results.get('security_score', 0),
+                    'decrypted_data': decrypted_data,
+                    'decryption_success': decryption_success,
+                    'qr_data_length': len(qr_data),
+                    'document_name': document_file.filename,
+                    'security_status': 'validation_complete' if validation_results['overall_valid'] else 'validation_failed'
+                })
+            else:
+                # Simple validation
+                is_authorized = security_utils.is_qr_authorized_for_document(qr_data, document_key, doc_temp_path)
+                
+                # Try to decrypt
+                decrypted_data = None
+                try:
+                    decrypted_data = read_secure_qr(qr_temp_path, document_key)
+                except Exception:
+                    pass
+
+                return jsonify({
+                    'success': True,
+                    'is_authorized': is_authorized,
+                    'decrypted_data': decrypted_data,
+                    'qr_data_length': len(qr_data),
+                    'document_name': document_file.filename,
+                    'security_status': 'authorized' if is_authorized else 'unauthorized'
+                })
+
+        finally:
+            # Clean up temporary files
+            for temp_file in [qr_temp_path, doc_temp_path]:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'security_status': 'validation_error'
+        }), 500
+
+
+@app.route('/get_document_hash', methods=['POST'])
+def get_document_hash():
+    """Get document hash for security verification."""
+    try:
+        # Check if a document file is uploaded
+        if 'document' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No document file uploaded',
+                'security_status': 'missing_document'
+            }), 400
+
+        document_file = request.files['document']
+        if document_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No document file selected',
+                'security_status': 'no_file_selected'
+            }), 400
+
+        # Check file type
+        if not (allowed_file(document_file.filename, ALLOWED_DOCX_EXTENSIONS) or 
+                allowed_file(document_file.filename, ALLOWED_PDF_EXTENSIONS)):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid file type. Only DOCX and PDF files are allowed.',
+                'security_status': 'invalid_file_type'
+            }), 400
+
+        # Save the uploaded document temporarily
+        temp_filename = f"temp_doc_{uuid.uuid4().hex}_{document_file.filename}"
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+        document_file.save(temp_path)
+
+        try:
+            # Generate document hash
+            document_hash = security_utils.generate_document_hash(temp_path)
+            
+            # Get file size for additional info
+            file_size = os.path.getsize(temp_path)
+            
+            return jsonify({
+                'success': True,
+                'document_hash': document_hash,
+                'document_name': document_file.filename,
+                'file_size': file_size,
+                'hash_algorithm': 'SHA-256',
+                'security_status': 'hash_generated',
+                'message': 'Document hash generated successfully'
+            })
+
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'security_status': 'hash_generation_failed'
+        }), 500
+
+
+@app.route('/embed_secure_document', methods=['POST'])
+def embed_secure_document():
+    """Enhanced embed with security validation."""
+    try:
+        # Check for required files
+        if 'document' not in request.files or 'qr_image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'Both document and QR image files are required',
+                'security_status': 'missing_files'
+            }), 400
+
+        document_file = request.files['document']
+        qr_file = request.files['qr_image']
+        document_key = request.form.get('document_key')  # Optional
+        validate_security = request.form.get('validate_security', 'false').lower() == 'true'
+
+        if document_file.filename == '' or qr_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No files selected',
+                'security_status': 'no_files_selected'
+            }), 400
+
+        # Validate file types
+        if not (allowed_file(document_file.filename, ALLOWED_DOCX_EXTENSIONS) or 
+                allowed_file(document_file.filename, ALLOWED_PDF_EXTENSIONS)):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid document type. Only DOCX and PDF files are allowed.',
+                'security_status': 'invalid_document_type'
+            }), 400
+
+        if not allowed_file(qr_file.filename, ALLOWED_IMAGE_EXTENSIONS):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid QR image type. Only PNG files are allowed.',
+                'security_status': 'invalid_qr_type'
+            }), 400
+
+        # Save uploaded files
+        doc_filename = f"doc_embed_in_{uuid.uuid4().hex}.{document_file.filename.rsplit('.', 1)[1].lower()}"
+        doc_path = os.path.join(app.config['UPLOAD_FOLDER'], doc_filename)
+        document_file.save(doc_path)
+
+        qr_filename = f"qr_embed_in_{uuid.uuid4().hex}.png"
+        qr_path = os.path.join(app.config['UPLOAD_FOLDER'], qr_filename)
+        qr_file.save(qr_path)
+
+        # Generate output filename
+        file_extension = document_file.filename.rsplit('.', 1)[1].lower()
+        output_filename = f"stego_doc_{uuid.uuid4().hex}.{file_extension}"
+        output_path = os.path.join(app.config['GENERATED_FOLDER'], output_filename)
+
+        # Copy to documents folder for public access
+        watermarked_filename = f"watermarked_{uuid.uuid4().hex}.{file_extension}"
+        watermarked_path = os.path.join(app.config['DOCUMENTS_FOLDER'], watermarked_filename)
+
+        try:
+            # Security validation if requested
+            security_validation_results = None
+            if validate_security:
+                if not document_key:
+                    document_key = security_utils.generate_document_key(doc_path)
+
+                # Validate QR-document pairing
+                qr_data_list = read_qr(qr_path)
+                if qr_data_list:
+                    qr_data = qr_data_list[0]
+                    document_hash = security_utils.generate_document_hash(doc_path)
+                    
+                    validation_results = validate_qr_security(qr_data, document_key, document_hash)
+                    security_validation_results = validation_results
+                    
+                    if not validation_results['overall_valid']:
+                        return jsonify({
+                            'success': False,
+                            'error': 'Security validation failed - QR code is not authorized for this document',
+                            'security_status': 'validation_failed',
+                            'validation_results': validation_results
+                        }), 400
+
+            # Perform embedding based on file type
+            if file_extension == 'docx':
+                result = embed_watermark_to_docx(
+                    doc_path, qr_path, output_path,
+                    validate_security=validate_security,
+                    document_key=document_key
+                )
+            else:  # pdf
+                result = embed_watermark_to_pdf(
+                    doc_path, qr_path, output_path,
+                    validate_security=validate_security,
+                    document_key=document_key
+                )
+
+            if result['success']:
+                # Copy to public documents folder
+                shutil.copy2(output_path, watermarked_path)
+                
+                return jsonify({
+                    'success': True,
+                    'output_filename': output_filename,
+                    'watermarked_filename': watermarked_filename,
+                    'document_type': file_extension.upper(),
+                    'processed_images': result.get('processed_images', 0),
+                    'security_validation': security_validation_results,
+                    'document_key': document_key if validate_security else None,
+                    'security_status': 'embed_complete_secure' if validate_security else 'embed_complete',
+                    'message': 'Document watermarking completed successfully with security validation' if validate_security else 'Document watermarking completed successfully'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': result.get('error', 'Embedding failed'),
+                    'security_status': 'embed_failed'
+                }), 500
+
+        finally:
+            # Clean up temporary files
+            for temp_file in [doc_path, qr_path]:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'security_status': 'embed_error'
+        }), 500
 
 
 # Menjalankan aplikasi Flask

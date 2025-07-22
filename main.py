@@ -12,8 +12,12 @@ import fitz  # PyMuPDF
 # Import modul lokal
 from qr_utils import (generate_qr, read_qr, analyze_text_encoding, 
                       calculate_qr_capacity, get_optimal_qr_version, 
-                      compare_qr_configurations, generate_qr_advanced)
+                      compare_qr_configurations, generate_qr_advanced,
+                      generate_secure_qr, read_secure_qr, validate_qr_security)
 from lsb_steganography import embed_qr_to_image, extract_qr_from_image
+
+# Import security utilities
+import security_utils
 
 
 def parse_arguments():
@@ -38,6 +42,11 @@ def parse_arguments():
                                 help='Lebar border dalam kotak (default: 4)')
     generate_parser.add_argument('--analyze', action='store_true',
                                 help='Tampilkan analisis konfigurasi QR Code optimal')
+    # Security-related arguments
+    generate_parser.add_argument('--secure', action='store_true',
+                                help='Generate secure QR with encryption')
+    generate_parser.add_argument('--document-path', type=str,
+                                help='Path to document for security key generation (required with --secure)')
 
     # Parser untuk perintah embed_docx
     embed_parser = subparsers.add_parser('embed_docx', help='Embed QR Code watermark ke dokumen')
@@ -60,6 +69,23 @@ def parse_arguments():
     extract_pdf_parser = subparsers.add_parser('extract_pdf', help='Extract QR Code watermark dari dokumen PDF')
     extract_pdf_parser.add_argument('--pdf', required=True, help='Path ke dokumen .pdf')
     extract_pdf_parser.add_argument('--output_dir', required=True, help='Direktori untuk menyimpan QR Code hasil ekstraksi')
+
+    # Parser untuk perintah generate_key (NEW)
+    generate_key_parser = subparsers.add_parser('generate_key', help='Generate security key for document')
+    generate_key_parser.add_argument('--document', required=True, help='Path to document file')
+    generate_key_parser.add_argument('--additional-data', type=str, default='',
+                                    help='Additional data to include in key generation (optional)')
+    generate_key_parser.add_argument('--save-key', type=str,
+                                    help='Path to save the generated key to file (optional)')
+
+    # Parser untuk perintah validate_security (NEW)
+    validate_security_parser = subparsers.add_parser('validate_security', help='Validate QR-document security pairing')
+    validate_security_parser.add_argument('--qr-image', required=True, help='Path to QR code image')
+    validate_security_parser.add_argument('--document', required=True, help='Path to document file')
+    validate_security_parser.add_argument('--key', type=str,
+                                         help='Document security key (if not provided, will generate from document)')
+    validate_security_parser.add_argument('--detailed', action='store_true',
+                                         help='Show detailed validation report')
 
     return parser.parse_args()
 
@@ -187,7 +213,8 @@ def analyze_qr_options(data: str, target_image_sizes: list = None) -> dict:
 
 def generate_qr_code(data: str, output_path: str, version: int = None, 
                     error_correction: str = 'M', box_size: int = 10, 
-                    border: int = 4, analyze: bool = False) -> bool:
+                    border: int = 4, analyze: bool = False, secure: bool = False,
+                    document_path: str = None) -> bool:
     """
     Generate QR Code with advanced configuration options and save it to the specified path.
 
@@ -199,11 +226,36 @@ def generate_qr_code(data: str, output_path: str, version: int = None,
         box_size (int): Size of each box in pixels
         border (int): Border size in boxes
         analyze (bool): Whether to show analysis of QR configuration
+        secure (bool): Whether to generate secure encrypted QR code
+        document_path (str): Path to document for security key generation (required if secure=True)
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
+        # Validate secure mode requirements
+        if secure:
+            if not document_path:
+                raise ValueError("Document path is required for secure QR generation")
+            if not os.path.exists(document_path):
+                raise FileNotFoundError(f"Document not found: {document_path}")
+            
+            print(f"[*] Generating secure QR code with document-based encryption...")
+            
+            # Generate document key
+            document_key = security_utils.generate_document_key(document_path)
+            print(f"[*] Document security key generated")
+            
+            # Generate secure QR code
+            img = generate_secure_qr(data, document_key, output_path)
+            
+            print(f"[*] Secure QR Code berhasil dibuat dengan data: '{data}'")
+            print(f"[*] Tersimpan di: {output_path}")
+            print(f"[*] Document key: {document_key}")
+            print(f"[!] IMPORTANT: Save the document key to decrypt QR data later!")
+            return True
+        
+        # Non-secure mode (original functionality)
         # Perform analysis if requested
         if analyze:
             try:
@@ -240,15 +292,16 @@ def generate_qr_code(data: str, output_path: str, version: int = None,
         
     except Exception as e:
         print(f"[!] Error saat membuat QR code: {str(e)}")
-        # Fallback to basic generation
-        try:
-            print("[*] Mencoba dengan metode dasar...")
-            generate_qr(data, output_path)
-            print(f"[*] QR Code berhasil dibuat dengan metode dasar")
-            return True
-        except Exception as fallback_e:
-            print(f"[!] Metode dasar juga gagal: {str(fallback_e)}")
-            return False
+        # Fallback to basic generation (only for non-secure mode)
+        if not secure:
+            try:
+                print("[*] Mencoba dengan metode dasar...")
+                generate_qr(data, output_path)
+                print(f"[*] QR Code berhasil dibuat dengan metode dasar")
+                return True
+            except Exception as fallback_e:
+                print(f"[!] Metode dasar juga gagal: {str(fallback_e)}")
+        return False
 
 
 def extract_images_from_docx(docx_path: str, output_dir: str) -> List[str]:
@@ -655,7 +708,193 @@ def analyze_pdf_images(pdf_path: str) -> dict:
         return {'success': False, 'error': str(e), 'images': []}
 
 
-def embed_watermark_to_docx(docx_path: str, qr_path: str, output_path: str) -> dict:
+# ====== NEW SECURITY FUNCTIONS ======
+
+def generate_document_key_command(document_path: str, additional_data: str = "", save_key_path: str = None) -> bool:
+    """
+    CLI command to generate and display document security key.
+    
+    Args:
+        document_path (str): Path to the document file
+        additional_data (str): Optional additional data for key generation
+        save_key_path (str): Optional path to save the key to file
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        if not os.path.exists(document_path):
+            print(f"[!] Error: Document not found: {document_path}")
+            return False
+        
+        print(f"[*] Generating security key for document: {os.path.basename(document_path)}")
+        
+        # Generate document key
+        document_key = security_utils.generate_document_key(document_path, additional_data)
+        
+        # Generate document hash for validation
+        document_hash = security_utils.generate_document_hash(document_path)
+        
+        # Create key signature for validation
+        key_signature = security_utils.create_key_signature(document_key, document_hash)
+        
+        print(f"\n[*] Document Security Information:")
+        print(f"    Document: {os.path.basename(document_path)}")
+        print(f"    Document Hash: {document_hash}")
+        print(f"    Security Key: {document_key}")
+        print(f"    Key Signature: {key_signature}")
+        
+        # Save key to file if requested
+        if save_key_path:
+            try:
+                key_info = {
+                    'document_path': document_path,
+                    'document_name': os.path.basename(document_path),
+                    'document_hash': document_hash,
+                    'security_key': document_key,
+                    'key_signature': key_signature,
+                    'additional_data': additional_data,
+                    'generated_at': security_utils.datetime.now().isoformat()
+                }
+                
+                import json
+                with open(save_key_path, 'w') as f:
+                    json.dump(key_info, f, indent=2)
+                
+                print(f"[*] Key information saved to: {save_key_path}")
+                
+            except Exception as e:
+                print(f"[!] Warning: Could not save key to file: {e}")
+        
+        print(f"\n[!] IMPORTANT: Save the security key securely!")
+        print(f"[!] You need this key to decrypt QR codes generated for this document.")
+        
+        return True
+        
+    except Exception as e:
+        print(f"[!] Error generating document key: {e}")
+        return False
+
+
+def validate_qr_document_pair(qr_image_path: str, document_path: str, document_key: str = None, detailed: bool = False) -> bool:
+    """
+    CLI command to validate if QR belongs to specific document.
+    
+    Args:
+        qr_image_path (str): Path to QR code image
+        document_path (str): Path to document file
+        document_key (str): Document security key (optional, will generate if not provided)
+        detailed (bool): Whether to show detailed validation report
+        
+    Returns:
+        bool: True if validation passes, False otherwise
+    """
+    try:
+        # Validate inputs
+        if not os.path.exists(qr_image_path):
+            print(f"[!] Error: QR image not found: {qr_image_path}")
+            return False
+        
+        if not os.path.exists(document_path):
+            print(f"[!] Error: Document not found: {document_path}")
+            return False
+        
+        print(f"[*] Validating QR-document security pairing...")
+        print(f"    QR Image: {os.path.basename(qr_image_path)}")
+        print(f"    Document: {os.path.basename(document_path)}")
+        
+        # Generate document key if not provided
+        if not document_key:
+            print(f"[*] Generating document key...")
+            document_key = security_utils.generate_document_key(document_path)
+            print(f"[*] Document key generated")
+        else:
+            print(f"[*] Using provided document key")
+        
+        # Read QR code data
+        try:
+            qr_data_list = read_qr(qr_image_path)
+            if not qr_data_list:
+                print(f"[!] Error: No QR code data found in image")
+                return False
+            
+            qr_data = qr_data_list[0]  # Use first QR code
+            print(f"[*] QR data read successfully ({len(qr_data)} chars)")
+            
+        except Exception as e:
+            print(f"[!] Error reading QR code: {e}")
+            return False
+        
+        # Generate document hash for validation
+        document_hash = security_utils.generate_document_hash(document_path)
+        
+        # Perform comprehensive security validation
+        if detailed:
+            print(f"\n[*] Performing detailed security validation...")
+            validation_results = validate_qr_security(qr_data, document_key, document_hash)
+            
+            print(f"\n[*] Detailed Validation Results:")
+            print(f"    Overall Valid: {validation_results['overall_valid']}")
+            print(f"    Security Score: {validation_results.get('security_score', 0):.2f}/1.0")
+            print(f"    Validation Timestamp: {validation_results['timestamp']}")
+            
+            print(f"\n[*] Individual Checks:")
+            for check, result in validation_results.get('validations', {}).items():
+                status = "✓ PASS" if result else "✗ FAIL" if result is False else "- SKIP"
+                print(f"      {check}: {status}")
+            
+            if validation_results.get('warnings'):
+                print(f"\n[!] Warnings:")
+                for warning in validation_results['warnings']:
+                    print(f"      - {warning}")
+            
+            if validation_results.get('errors'):
+                print(f"\n[!] Errors:")
+                for error in validation_results['errors']:
+                    print(f"      - {error}")
+            
+            # Try to decrypt QR data
+            try:
+                decrypted_data = read_secure_qr(qr_image_path, document_key)
+                print(f"\n[*] QR Data Decryption: SUCCESS")
+                print(f"    Decrypted content: '{decrypted_data}'")
+            except Exception as e:
+                print(f"\n[!] QR Data Decryption: FAILED")
+                print(f"    Error: {e}")
+            
+            return validation_results['overall_valid']
+        
+        else:
+            # Simple validation using security utils
+            try:
+                is_authorized = security_utils.is_qr_authorized_for_document(qr_data, document_key, document_path)
+                
+                if is_authorized:
+                    print(f"\n[*] ✅ QR-Document Validation: PASSED")
+                    print(f"[*] The QR code is authorized for this document")
+                    
+                    # Try to decrypt and show content
+                    try:
+                        decrypted_data = read_secure_qr(qr_image_path, document_key)
+                        print(f"[*] Decrypted QR content: '{decrypted_data}'")
+                    except Exception as e:
+                        print(f"[!] Could not decrypt QR content: {e}")
+                else:
+                    print(f"\n[!] ❌ QR-Document Validation: FAILED")
+                    print(f"[!] The QR code is NOT authorized for this document")
+                
+                return is_authorized
+                
+            except Exception as e:
+                print(f"[!] Validation error: {e}")
+                return False
+    
+    except Exception as e:
+        print(f"[!] Error during validation: {e}")
+        return False
+
+
+def embed_watermark_to_docx(docx_path: str, qr_path: str, output_path: str, validate_security: bool = False, document_key: str = None) -> dict:
     """
     Process a docx document to add QR watermarks to all images.
 
@@ -663,11 +902,45 @@ def embed_watermark_to_docx(docx_path: str, qr_path: str, output_path: str) -> d
         docx_path: Path to the original .docx file
         qr_path: Path to the QR code image to embed
         output_path: Path to save the watermarked document
+        validate_security: Whether to perform security validation before embedding
+        document_key: Document security key for validation (optional)
 
     Returns:
         dict: Result dictionary with success status and processed image info
     """
     try:
+        # Security validation if requested
+        if validate_security:
+            print(f"[*] Performing security validation before embedding...")
+            
+            # Generate document key if not provided
+            if not document_key:
+                document_key = security_utils.generate_document_key(docx_path)
+            
+            # Validate QR-document pairing
+            try:
+                qr_data_list = read_qr(qr_path)
+                if qr_data_list:
+                    qr_data = qr_data_list[0]
+                    document_hash = security_utils.generate_document_hash(docx_path)
+                    
+                    # Use comprehensive validation
+                    validation_results = validate_qr_security(qr_data, document_key, document_hash)
+                    
+                    if not validation_results['overall_valid']:
+                        print(f"[!] Security validation failed - QR code is not authorized for this document")
+                        return {
+                            'success': False,
+                            'error': 'Security validation failed',
+                            'validation_results': validation_results
+                        }
+                    else:
+                        print(f"[*] ✅ Security validation passed - proceeding with embedding")
+                else:
+                    print(f"[!] Warning: Could not read QR code for validation")
+            except Exception as e:
+                print(f"[!] Warning: Security validation error: {e}")
+        
         # Validate QR code for steganography capacity
         try:
             qr_img = Image.open(qr_path)
@@ -820,7 +1093,7 @@ def embed_watermark_to_docx(docx_path: str, qr_path: str, output_path: str) -> d
         return {"success": False, "error": str(e)}
 
 
-def embed_watermark_to_pdf(pdf_path: str, qr_path: str, output_path: str) -> dict:
+def embed_watermark_to_pdf(pdf_path: str, qr_path: str, output_path: str, validate_security: bool = False, document_key: str = None) -> dict:
     """
     Process a PDF document to add QR watermarks to all images.
 
@@ -828,11 +1101,45 @@ def embed_watermark_to_pdf(pdf_path: str, qr_path: str, output_path: str) -> dic
         pdf_path: Path to the original .pdf file
         qr_path: Path to the QR code image to embed
         output_path: Path to save the watermarked document
+        validate_security: Whether to perform security validation before embedding
+        document_key: Document security key for validation (optional)
 
     Returns:
         dict: Result dictionary with success status and processed image info
     """
     try:
+        # Security validation if requested
+        if validate_security:
+            print(f"[*] Performing security validation before embedding...")
+            
+            # Generate document key if not provided
+            if not document_key:
+                document_key = security_utils.generate_document_key(pdf_path)
+            
+            # Validate QR-document pairing
+            try:
+                qr_data_list = read_qr(qr_path)
+                if qr_data_list:
+                    qr_data = qr_data_list[0]
+                    document_hash = security_utils.generate_document_hash(pdf_path)
+                    
+                    # Use comprehensive validation
+                    validation_results = validate_qr_security(qr_data, document_key, document_hash)
+                    
+                    if not validation_results['overall_valid']:
+                        print(f"[!] Security validation failed - QR code is not authorized for this document")
+                        return {
+                            'success': False,
+                            'error': 'Security validation failed',
+                            'validation_results': validation_results
+                        }
+                    else:
+                        print(f"[*] ✅ Security validation passed - proceeding with embedding")
+                else:
+                    print(f"[!] Warning: Could not read QR code for validation")
+            except Exception as e:
+                print(f"[!] Warning: Security validation error: {e}")
+        
         # Validate QR code for steganography capacity
         try:
             qr_img = Image.open(qr_path)
@@ -984,13 +1291,15 @@ def embed_watermark_to_pdf(pdf_path: str, qr_path: str, output_path: str) -> dic
         return {"success": False, "error": str(e)}
 
 
-def extract_watermark_from_docx(docx_path: str, output_dir: str) -> bool:
+def extract_watermark_from_docx(docx_path: str, output_dir: str, validate_security: bool = False, document_key: str = None) -> bool:
     """
     Extract QR watermarks from images in a docx document.
 
     Args:
         docx_path: Path to the .docx file
         output_dir: Directory to save extracted QR codes
+        validate_security: Whether to perform security validation on extracted QR codes
+        document_key: Document security key for validation (optional)
 
     Returns:
         bool: True if any watermarks were extracted, False otherwise
@@ -998,6 +1307,13 @@ def extract_watermark_from_docx(docx_path: str, output_dir: str) -> bool:
     try:
         # Make sure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
+
+        # Generate document key for security validation if needed
+        if validate_security and not document_key:
+            print(f"[*] Generating document key for security validation...")
+            document_key = security_utils.generate_document_key(docx_path)
+            document_hash = security_utils.generate_document_hash(docx_path)
+            print(f"[*] Document security key generated")
 
         # Create a unique temporary directory to store extracted images
         temp_dir_name = f"temp_extract_{uuid.uuid4().hex}"
@@ -1159,6 +1475,8 @@ def main():
         box_size = getattr(args, 'box_size', 10)
         border = getattr(args, 'border', 4)
         analyze = getattr(args, 'analyze', False)
+        secure = getattr(args, 'secure', False)
+        document_path = getattr(args, 'document_path', None)
         
         generate_qr_code(
             data=args.data,
@@ -1167,7 +1485,32 @@ def main():
             error_correction=error_correction,
             box_size=box_size,
             border=border,
-            analyze=analyze
+            analyze=analyze,
+            secure=secure,
+            document_path=document_path
+        )
+
+    elif args.command == 'generate_key':
+        # NEW: Generate document security key
+        additional_data = getattr(args, 'additional_data', '')
+        save_key_path = getattr(args, 'save_key', None)
+        
+        generate_document_key_command(
+            document_path=args.document,
+            additional_data=additional_data,
+            save_key_path=save_key_path
+        )
+
+    elif args.command == 'validate_security':
+        # NEW: Validate QR-document security pairing
+        document_key = getattr(args, 'key', None)
+        detailed = getattr(args, 'detailed', False)
+        
+        validate_qr_document_pair(
+            qr_image_path=args.qr_image,
+            document_path=args.document,
+            document_key=document_key,
+            detailed=detailed
         )
 
     elif args.command == 'embed_docx':

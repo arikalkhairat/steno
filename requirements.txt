@@ -11,3 +11,8 @@ MarkupSafe
 click
 itsdangerous
 colorama
+
+# Security and encryption libraries
+cryptography>=3.4.8
+pyotp>=2.6.0
+bcrypt>=3.2.0
