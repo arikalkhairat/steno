@@ -1622,6 +1622,936 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Security Tab Styles */
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--background);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-display {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .key-display textarea {
+            flex: 1;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .hash-display {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hash-info {
+            color: var(--text-secondary);
+        }
+
+        .security-status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0fff4;
+            border-radius: 8px;
+            border: 1px solid #68d391;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .status-icon.success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .status-text .status-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .status-text .status-details {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .qr-preview {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .qr-details {
+            flex: 1;
+        }
+
+        .security-badge {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .qr-info {
+            background: var(--background);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .validation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .validation-item {
+            background: var(--background);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .validation-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .validation-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .validation-value.success {
+            color: var(--success-color);
+        }
+
+        .validation-value.warning {
+            color: var(--warning-color);
+        }
+
+        .validation-value.error {
+            color: var(--error-color);
+        }
+
+        .validation-details {
+            background: var(--background);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .qr-preview {
+                flex-direction: column;
+            }
+            
+            .validation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .key-display {
+                flex-direction: column;
+            }
+        }
+
+        /* Security Settings for Embed Tab */
+        .security-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .security-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .security-controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--background);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .security-key-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .security-key-input input {
+            flex: 1;
+        }
+
+        .security-key-input button {
+            min-width: 100px;
+        }
+
+        .form-hint {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .security-status-embed {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #68d391;
+            background: #f0fff4;
+        }
+
+        .security-status-embed.warning {
+            border-color: #f6ad55;
+            background: #fffaf0;
+        }
+
+        .security-status-embed.error {
+            border-color: #fc8181;
+            background: #fed7d7;
+        }
+
+        .security-warnings {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--warning-color);
+            background: #fffaf0;
+        }
+
+        .warning-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .warning-content i {
+            color: var(--warning-color);
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .warning-messages {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .warning-messages ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .warning-messages li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .security-key-input {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .security-key-input button {
+                min-width: auto;
+            }
+        }
+
+        /* Advanced Security Validation for Validate Tab */
+        .validation-options {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--background);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .validation-options .checkbox-container {
+            margin-bottom: 15px;
+        }
+
+        .validation-options .checkbox-container:last-child {
+            margin-bottom: 0;
+        }
+
+        .security-validation-status {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--background);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .security-validation-status h5 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .validation-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .status-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .status-value.pending {
+            color: #718096;
+        }
+
+        .status-value.success {
+            color: var(--success-color);
+        }
+
+        .status-value.warning {
+            color: var(--warning-color);
+        }
+
+        .status-value.error {
+            color: var(--error-color);
+        }
+
+        .status-value.secure {
+            color: var(--success-color);
+            background: #f0fff4;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-value.unauthorized {
+            color: var(--error-color);
+            background: #fed7d7;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Enhanced Results Display for Validate Tab */
+        .enhanced-validation-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--background);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .enhanced-validation-results h4 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .security-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .security-indicator {
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .security-indicator.secure {
+            border-color: var(--success-color);
+            background: #f0fff4;
+        }
+
+        .security-indicator.warning {
+            border-color: var(--warning-color);
+            background: #fffaf0;
+        }
+
+        .security-indicator.unauthorized {
+            border-color: var(--error-color);
+            background: #fed7d7;
+        }
+
+        .security-indicator-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .security-indicator.secure .security-indicator-icon {
+            color: var(--success-color);
+        }
+
+        .security-indicator.warning .security-indicator-icon {
+            color: var(--warning-color);
+        }
+
+        .security-indicator.unauthorized .security-indicator-icon {
+            color: var(--error-color);
+        }
+
+        .security-indicator-content {
+            flex: 1;
+        }
+
+        .security-indicator-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .security-indicator-details {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .validation-status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .security-indicators {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Key Management Styles */
+        .key-management-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .search-controls .form-group {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .key-table-container {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .key-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .key-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .key-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .key-table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        .key-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .no-data {
+            background: #f8fafc !important;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #718096;
+        }
+
+        .no-data-message i {
+            font-size: 3em;
+            color: #cbd5e0;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .no-data-message p {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #4a5568;
+        }
+
+        .no-data-message small {
+            color: #a0aec0;
+        }
+
+        .key-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .key-status.active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .key-status.recent {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .key-status.old {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .key-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .key-action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .key-action-btn.view {
+            background: #e6fffa;
+            color: #234e52;
+        }
+
+        .key-action-btn.download {
+            background: #ebf8ff;
+            color: #2c5282;
+        }
+
+        .key-action-btn.delete {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .key-action-btn:hover {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+
+        .table-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .page-info {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        /* Backup & Recovery Styles */
+        .backup-controls {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .backup-actions {
+            display: grid;
+            gap: 20px;
+        }
+
+        .backup-export {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .maintenance-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .backup-status {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .backup-status .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .backup-status .status-icon {
+            font-size: 2em;
+            color: #48bb78;
+        }
+
+        .backup-status .status-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .backup-status .status-details {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        /* Security Statistics Styles */
+        .stats-dashboard {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2.5em;
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .stat-card:nth-child(1) .stat-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .stats-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-section h4 {
+            margin: 0 0 15px 0;
+            color: #2d3748;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-section h4 i {
+            color: #667eea;
+        }
+
+        .activity-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: #2d3748;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .activity-time {
+            color: #a0aec0;
+            font-size: 0.8em;
+        }
+
+        .usage-stats {
+            display: grid;
+            gap: 12px;
+        }
+
+        .usage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .usage-item:last-child {
+            border-bottom: none;
+        }
+
+        .usage-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .usage-value {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .security-alerts {
+            display: grid;
+            gap: 10px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .alert-item.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .alert-item.warning {
+            background: #fefcbf;
+            color: #744210;
+        }
+
+        .alert-item.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .stats-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Key Management Responsive Design */
+        @media (max-width: 768px) {
+            .search-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-controls .form-group {
+                min-width: unset;
+            }
+
+            .filter-controls {
+                justify-content: space-between;
+            }
+
+            .backup-export,
+            .maintenance-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .key-table {
+                font-size: 0.8em;
+            }
+
+            .key-table th,
+            .key-table td {
+                padding: 8px 4px;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-details {
+                grid-template-columns: 1fr;
+            }
+
+            .table-pagination {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1648,6 +2578,10 @@
             <button class="tab-btn" data-tab="config">
                 <i class="fas fa-cogs"></i>
                 <span>QR Configuration</span>
+            </button>
+            <button class="tab-btn" data-tab="security">
+                <i class="fas fa-lock"></i>
+                <span>Document Security</span>
             </button>
         </div>
 
@@ -1842,6 +2776,76 @@
                             </div>
                         </div>
                         
+                        <!-- Security Settings -->
+                        <div class="advanced-settings">
+                            <div class="advanced-settings-header" onclick="toggleSecuritySettings()">
+                                <div class="advanced-settings-title">
+                                    <i class="fas fa-lock"></i>
+                                    Security Settings
+                                </div>
+                                <i class="fas fa-chevron-down advanced-settings-toggle"></i>
+                            </div>
+                            <div class="advanced-settings-content" id="securitySettings" style="display: none;">
+                                <div class="security-info">
+                                    <p><i class="fas fa-info-circle"></i> Enhance document security with encrypted QR validation and key-based authorization.</p>
+                                </div>
+                                
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="enableDocumentSecurity" name="enable_security">
+                                    <label for="enableDocumentSecurity" class="form-label" style="margin: 0;">
+                                        <strong>Enable Document Security</strong> - Add encryption and validation to the embedding process
+                                    </label>
+                                </div>
+                                
+                                <div class="security-controls" id="securityControls" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label">Document Security Key</label>
+                                        <div class="security-key-input">
+                                            <input type="text" id="embedSecurityKey" name="security_key" 
+                                                   class="form-input" placeholder="Enter or generate security key..." 
+                                                   style="font-family: monospace; font-size: 12px;">
+                                            <button type="button" id="generateEmbedKey" class="btn btn-secondary" 
+                                                    title="Generate new security key for this document">
+                                                <i class="fas fa-key"></i> Generate
+                                            </button>
+                                        </div>
+                                        <small class="form-hint">
+                                            <i class="fas fa-info-circle"></i> 
+                                            If this document already has a security key, it will be auto-detected
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="validateQrAuth" name="validate_qr_auth">
+                                        <label for="validateQrAuth" class="form-label" style="margin: 0;">
+                                            Validate QR Authorization - Ensure QR code matches document security
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Security Status Display -->
+                                    <div class="security-status-embed" id="embedSecurityStatus" style="display: none;">
+                                        <div class="status-indicator">
+                                            <div class="status-icon" id="embedStatusIcon">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </div>
+                                            <div class="status-text">
+                                                <div class="status-title" id="embedStatusTitle">Security Status</div>
+                                                <div class="status-details" id="embedStatusDetails">Ready for secure embedding</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Security Warnings -->
+                                    <div class="security-warnings" id="embedSecurityWarnings" style="display: none;">
+                                        <div class="warning-content">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <div class="warning-messages" id="embedWarningMessages"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary" style="width: 100%;">
                             <i class="fas fa-lock"></i> Sisipkan Watermark
                         </button>
@@ -1904,6 +2908,86 @@
                                     <i class="fas fa-file-text"></i>
                                     <span>Pilih dokumen DOCX atau PDF untuk validasi...</span>
                                 </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Security Validation -->
+                        <div class="advanced-settings">
+                            <div class="advanced-settings-header" onclick="toggleAdvancedSecurityValidation()">
+                                <div class="advanced-settings-title">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Advanced Security Validation
+                                </div>
+                                <i class="fas fa-chevron-down advanced-settings-toggle"></i>
+                            </div>
+                            <div class="advanced-settings-content" id="advancedSecurityValidation" style="display: none;">
+                                <div class="security-info">
+                                    <p><i class="fas fa-info-circle"></i> Perform comprehensive security verification including document authenticity and QR authorization checking.</p>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Document Security Key (Optional)</label>
+                                    <div class="security-key-input">
+                                        <input type="text" id="validateSecurityKey" name="validate_security_key" 
+                                               class="form-input" placeholder="Enter security key for enhanced validation..." 
+                                               style="font-family: monospace; font-size: 12px;">
+                                        <button type="button" id="detectValidateKey" class="btn btn-secondary" 
+                                                title="Auto-detect security key from document">
+                                            <i class="fas fa-search"></i> Detect
+                                        </button>
+                                    </div>
+                                    <small class="form-hint">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Provide security key for encrypted QR validation and document authenticity verification
+                                    </small>
+                                </div>
+                                
+                                <div class="validation-options">
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="verifyDocumentAuth" name="verify_document_auth">
+                                        <label for="verifyDocumentAuth" class="form-label" style="margin: 0;">
+                                            <strong>Verify Document Authenticity</strong> - Check document integrity and security signatures
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="checkQrAuth" name="check_qr_auth">
+                                        <label for="checkQrAuth" class="form-label" style="margin: 0;">
+                                            <strong>Check QR Authorization</strong> - Validate QR codes against document security
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Security Validation Status -->
+                                <div class="security-validation-status" id="validateSecurityStatus" style="display: none;">
+                                    <h5><i class="fas fa-shield-alt"></i> Security Validation Status</h5>
+                                    <div class="validation-status-grid">
+                                        <div class="status-item">
+                                            <div class="status-label">QR Extraction</div>
+                                            <div class="status-value" id="qrExtractionStatus">
+                                                <i class="fas fa-clock"></i> Pending
+                                            </div>
+                                        </div>
+                                        <div class="status-item">
+                                            <div class="status-label">Security Verification</div>
+                                            <div class="status-value" id="securityVerificationStatus">
+                                                <i class="fas fa-clock"></i> Pending
+                                            </div>
+                                        </div>
+                                        <div class="status-item">
+                                            <div class="status-label">Key Authorization</div>
+                                            <div class="status-value" id="keyAuthorizationStatus">
+                                                <i class="fas fa-clock"></i> Pending
+                                            </div>
+                                        </div>
+                                        <div class="status-item">
+                                            <div class="status-label">Document Integrity</div>
+                                            <div class="status-value" id="documentIntegrityStatus">
+                                                <i class="fas fa-clock"></i> Pending
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -2053,6 +3137,431 @@
                         <h4><i class="fas fa-cogs"></i> Analysis Details</h4>
                         <div class="process-log" id="configLog"></div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Document Security Tab -->
+            <div class="tab-pane" id="security-tab">
+                <div class="card single-card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #e53e3e, #c53030);">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Document Security</div>
+                        </div>
+                    </div>
+                    <div class="card-description">
+                        Kelola keamanan dokumen dengan enkripsi, validasi QR, dan analisis integritas.
+                    </div>
+
+                    <!-- Document Upload Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-file-alt"></i> Document Upload</h3>
+                        <div class="form-group">
+                            <label class="form-label">Upload Document</label>
+                            <div class="file-upload">
+                                <input type="file" id="securityDocFile" accept=".docx,.pdf" class="file-upload-input">
+                                <label for="securityDocFile" class="file-upload-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose document file...</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="generateKeyBtn" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Generate Security Key
+                            </button>
+                            <button type="button" id="getHashBtn" class="btn" style="background: linear-gradient(135deg, #805ad5, #6b46c1); color: white;">
+                                <i class="fas fa-fingerprint"></i> Get Document Hash
+                            </button>
+                        </div>
+
+                        <!-- Security Key Display -->
+                        <div class="result-section" id="securityKeyResult" style="display: none;">
+                            <h4><i class="fas fa-key"></i> Generated Security Key</h4>
+                            <div class="key-display">
+                                <textarea id="securityKeyText" readonly class="form-input" rows="3" style="font-family: monospace; font-size: 12px;"></textarea>
+                                <button type="button" id="copyKeyBtn" class="btn btn-secondary">
+                                    <i class="fas fa-copy"></i> Copy Key
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Document Hash Display -->
+                        <div class="result-section" id="documentHashResult" style="display: none;">
+                            <h4><i class="fas fa-fingerprint"></i> Document Hash</h4>
+                            <div class="hash-display">
+                                <input type="text" id="documentHashText" readonly class="form-input" style="font-family: monospace;">
+                                <div class="hash-info">
+                                    <small><i class="fas fa-info-circle"></i> SHA-256 hash for document integrity verification</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Status Indicator -->
+                        <div class="security-status" id="securityStatus" style="display: none;">
+                            <div class="status-indicator">
+                                <div class="status-icon success">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="status-text">
+                                    <div class="status-title">Security Status: Active</div>
+                                    <div class="status-details">Document key generated and ready for secure operations</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Secure QR Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-qrcode"></i> Generate Secure QR</h3>
+                        <div class="form-group">
+                            <label class="form-label">QR Data</label>
+                            <textarea id="secureQrText" placeholder="Enter text to be encrypted in QR code..." class="form-input" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Document Key</label>
+                            <input type="text" id="secureQrKey" placeholder="Paste or enter security key..." class="form-input" style="font-family: monospace;">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="generateSecureQrBtn" class="btn btn-primary">
+                                <i class="fas fa-lock"></i> Generate Secure QR
+                            </button>
+                        </div>
+
+                        <!-- Secure QR Result -->
+                        <div class="result-section" id="secureQrResult" style="display: none;">
+                            <h4><i class="fas fa-qrcode"></i> Secure QR Code Generated</h4>
+                            <div class="qr-preview">
+                                <img id="secureQrImage" alt="Secure QR Code" style="max-width: 300px; border: 2px solid var(--border-color); border-radius: 8px;">
+                                <div class="qr-details">
+                                    <div class="security-badge">
+                                        <i class="fas fa-shield-alt"></i> Encrypted
+                                    </div>
+                                    <div class="qr-info" id="secureQrInfo"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validate QR-Document Pair Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-shield-alt"></i> Validate QR-Document Pair</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">QR Code File</label>
+                                <div class="file-upload">
+                                    <input type="file" id="validateQrFile" accept=".png,.jpg,.jpeg" class="file-upload-input">
+                                    <label for="validateQrFile" class="file-upload-label">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span>Choose QR file...</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Document File</label>
+                                <div class="file-upload">
+                                    <input type="file" id="validateDocFile" accept=".docx,.pdf" class="file-upload-input">
+                                    <label for="validateDocFile" class="file-upload-label">
+                                        <i class="fas fa-file-alt"></i>
+                                        <span>Choose document...</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Document Key</label>
+                            <input type="text" id="validateKey" placeholder="Enter security key for validation..." class="form-input" style="font-family: monospace;">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="validateSecurityBtn" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Validate Security
+                            </button>
+                        </div>
+
+                        <!-- Validation Results -->
+                        <div class="result-section" id="validationResults" style="display: none;">
+                            <h4><i class="fas fa-chart-line"></i> Security Validation Results</h4>
+                            <div class="validation-grid">
+                                <div class="validation-item">
+                                    <div class="validation-label">Security Score</div>
+                                    <div class="validation-value" id="securityScore">-</div>
+                                </div>
+                                <div class="validation-item">
+                                    <div class="validation-label">Encryption Status</div>
+                                    <div class="validation-value" id="encryptionStatus">-</div>
+                                </div>
+                                <div class="validation-item">
+                                    <div class="validation-label">Document Integrity</div>
+                                    <div class="validation-value" id="documentIntegrity">-</div>
+                                </div>
+                                <div class="validation-item">
+                                    <div class="validation-label">QR Authenticity</div>
+                                    <div class="validation-value" id="qrAuthenticity">-</div>
+                                </div>
+                            </div>
+                            <div class="validation-details" id="validationDetails"></div>
+                        </div>
+                    </div>
+
+                    <!-- Key Management Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-key"></i> Key Management</h3>
+                        
+                        <!-- Search and Filter -->
+                        <div class="key-management-controls">
+                            <div class="search-controls">
+                                <div class="form-group">
+                                    <input type="text" id="keySearchInput" placeholder="Search documents by name or hash..." class="form-input">
+                                    <button type="button" id="searchKeysBtn" class="btn btn-secondary">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </div>
+                                <div class="filter-controls">
+                                    <select id="keyFilterStatus" class="form-input">
+                                        <option value="all">All Documents</option>
+                                        <option value="active">Active Keys</option>
+                                        <option value="recent">Recent (7 days)</option>
+                                        <option value="old">Older (30+ days)</option>
+                                    </select>
+                                    <button type="button" id="refreshKeyListBtn" class="btn btn-secondary">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Keys Table -->
+                        <div class="key-table-container">
+                            <table class="key-table" id="keyTable">
+                                <thead>
+                                    <tr>
+                                        <th>Document</th>
+                                        <th>Hash (Short)</th>
+                                        <th>Created</th>
+                                        <th>Last Accessed</th>
+                                        <th>Access Count</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="keyTableBody">
+                                    <tr class="no-data">
+                                        <td colspan="7">
+                                            <div class="no-data-message">
+                                                <i class="fas fa-inbox"></i>
+                                                <p>No secured documents found</p>
+                                                <small>Generate a security key to get started</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Pagination -->
+                        <div class="table-pagination" id="keyTablePagination" style="display: none;">
+                            <button type="button" id="prevPageBtn" class="btn btn-secondary">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                            <button type="button" id="nextPageBtn" class="btn btn-secondary">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Backup & Recovery Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-database"></i> Backup & Recovery</h3>
+                        
+                        <div class="backup-controls">
+                            <div class="backup-actions">
+                                <div class="form-group">
+                                    <label class="form-label">Export Security Data</label>
+                                    <div class="backup-export">
+                                        <button type="button" id="exportKeysBtn" class="btn btn-primary">
+                                            <i class="fas fa-download"></i> Export All Keys
+                                        </button>
+                                        <button type="button" id="exportSelectedBtn" class="btn btn-secondary" disabled>
+                                            <i class="fas fa-file-export"></i> Export Selected
+                                        </button>
+                                    </div>
+                                    <small class="form-help">Export security keys as encrypted backup file</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Import Security Data</label>
+                                    <div class="file-upload">
+                                        <input type="file" id="importKeysFile" accept=".json" class="file-upload-input">
+                                        <label for="importKeysFile" class="file-upload-label">
+                                            <i class="fas fa-upload"></i>
+                                            <span>Choose backup file...</span>
+                                        </label>
+                                    </div>
+                                    <button type="button" id="importKeysBtn" class="btn btn-warning" disabled>
+                                        <i class="fas fa-file-import"></i> Import Keys
+                                    </button>
+                                    <small class="form-help">Import security keys from backup file</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Maintenance</label>
+                                    <div class="maintenance-controls">
+                                        <button type="button" id="cleanupKeysBtn" class="btn" style="background: linear-gradient(135deg, #f56565, #e53e3e); color: white;">
+                                            <i class="fas fa-broom"></i> Cleanup Old Keys
+                                        </button>
+                                        <select id="cleanupDaysSelect" class="form-input" style="width: auto; margin-left: 10px;">
+                                            <option value="30">30 days</option>
+                                            <option value="60">60 days</option>
+                                            <option value="90">90 days</option>
+                                            <option value="180">6 months</option>
+                                        </select>
+                                    </div>
+                                    <small class="form-help">Remove keys not accessed for specified period</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Backup Status -->
+                        <div class="backup-status" id="backupStatus" style="display: none;">
+                            <div class="status-indicator">
+                                <div class="status-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="status-text">
+                                    <div class="status-title" id="backupStatusTitle">Operation Complete</div>
+                                    <div class="status-details" id="backupStatusDetails">Security data processed successfully</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Statistics Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-chart-bar"></i> Security Statistics</h3>
+                        
+                        <div class="stats-dashboard">
+                            <!-- Overview Cards -->
+                            <div class="stats-overview">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="totalDocuments">0</div>
+                                        <div class="stat-label">Secured Documents</div>
+                                    </div>
+                                </div>
+
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="activeKeys">0</div>
+                                        <div class="stat-label">Active Keys</div>
+                                    </div>
+                                </div>
+
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="successRate">0%</div>
+                                        <div class="stat-label">Success Rate</div>
+                                    </div>
+                                </div>
+
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="recentActivity">0</div>
+                                        <div class="stat-label">Recent Activities</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Statistics -->
+                            <div class="stats-details">
+                                <div class="stats-section">
+                                    <h4><i class="fas fa-history"></i> Recent Security Activities</h4>
+                                    <div class="activity-list" id="recentActivities">
+                                        <div class="activity-item">
+                                            <div class="activity-icon">
+                                                <i class="fas fa-info-circle"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <div class="activity-text">No recent activities</div>
+                                                <div class="activity-time">Start using security features to see activities</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="stats-section">
+                                    <h4><i class="fas fa-chart-pie"></i> Key Usage Statistics</h4>
+                                    <div class="usage-stats">
+                                        <div class="usage-item">
+                                            <div class="usage-label">Most Accessed Document</div>
+                                            <div class="usage-value" id="mostAccessed">N/A</div>
+                                        </div>
+                                        <div class="usage-item">
+                                            <div class="usage-label">Average Access Count</div>
+                                            <div class="usage-value" id="avgAccess">0</div>
+                                        </div>
+                                        <div class="usage-item">
+                                            <div class="usage-label">Keys Created This Week</div>
+                                            <div class="usage-value" id="weeklyKeys">0</div>
+                                        </div>
+                                        <div class="usage-item">
+                                            <div class="usage-label">Storage Used</div>
+                                            <div class="usage-value" id="storageUsed">0 KB</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="stats-section">
+                                    <h4><i class="fas fa-exclamation-triangle"></i> Security Alerts</h4>
+                                    <div class="security-alerts" id="securityAlerts">
+                                        <div class="alert-item success">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>All security systems operational</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Refresh Stats Button -->
+                            <div class="stats-actions">
+                                <button type="button" id="refreshStatsBtn" class="btn btn-secondary">
+                                    <i class="fas fa-sync-alt"></i> Refresh Statistics
+                                </button>
+                                <button type="button" id="exportStatsBtn" class="btn btn-secondary">
+                                    <i class="fas fa-file-csv"></i> Export Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-bar" id="securityProgress">
+                        <div class="progress-fill"></div>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div class="alert" id="securityAlert"></div>
                 </div>
             </div>
         </div>
@@ -2865,7 +4374,8 @@
                 'generate': 'generateProcess',
                 'embed': 'embedProcess', 
                 'validate': 'validateProcess',
-                'config': 'configProcess'
+                'config': 'configProcess',
+                'security': 'securityProcess'
             };
             
             // Hide process details for other tabs, but keep current tab's results
@@ -3403,6 +4913,11 @@
         document.getElementById('embedForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Security validation before embedding
+            if (!validateEmbedSecurity()) {
+                return; // Stop submission if security validation fails
+            }
+            
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="loading"></span> Menyisipkan Watermark...';
@@ -3417,6 +4932,22 @@
             const formData = new FormData(this);
             const docxFile = document.getElementById('docxFileEmbed').files[0];
             const qrFile = document.getElementById('qrFileEmbed').files[0];
+            
+            // Add security parameters if enabled
+            const securityEnabled = document.getElementById('enableDocumentSecurity').checked;
+            if (securityEnabled) {
+                const securityKey = document.getElementById('embedSecurityKey').value.trim();
+                const validateQrAuth = document.getElementById('validateQrAuth').checked;
+                
+                formData.append('security_enabled', 'true');
+                formData.append('security_key', securityKey);
+                formData.append('validate_qr_security', validateQrAuth.toString());
+                
+                addLogEntry('embedLog', '🔐 Security mode enabled - Adding security validation...', 'info');
+                if (validateQrAuth) {
+                    addLogEntry('embedLog', '🔍 QR authorization validation enabled', 'info');
+                }
+            }
             
             // Add process steps
             addLogEntry('embedLog', '🚀 Memulai proses embedding watermark...', 'info');
@@ -3586,6 +5117,18 @@
             addLogEntry('validateLog', '🔓 Mencari watermark QR Code tersembunyi...', 'info');
             
             try {
+                // Check if advanced security validation is enabled
+                const securityKey = document.getElementById('validateSecurityKey').value.trim();
+                const advancedValidationEnabled = document.querySelector('#validate-tab .advanced-settings-header').classList.contains('active') && securityKey;
+                
+                let securityResults = null;
+                
+                // Perform advanced security validation if enabled
+                if (advancedValidationEnabled) {
+                    addLogEntry('validateLog', '🔒 Memulai validasi keamanan lanjutan...', 'info');
+                    securityResults = await performAdvancedSecurityValidation(docxFile, securityKey);
+                }
+                
                 const response = await fetch('/extract_document', {
                     method: 'POST',
                     body: formData
@@ -3596,6 +5139,14 @@
                 if (result.success) {
                     addLogEntry('validateLog', '✅ Proses validasi berhasil!', 'success');
                     addLogEntry('validateLog', `🔍 QR Code ditemukan: ${result.extracted_qrs ? result.extracted_qrs.length : 0}`, 'success');
+                    
+                    // Add security validation results to log if available
+                    if (securityResults) {
+                        addLogEntry('validateLog', '🔒 Validasi keamanan selesai', 'success');
+                        if (securityResults.security_score) {
+                            addLogEntry('validateLog', `📊 Skor keamanan: ${securityResults.security_score}/100`, 'info');
+                        }
+                    }
                     
                     showAlert('validateAlert', `
                         <i class="fas fa-check-circle"></i> 
@@ -3622,6 +5173,12 @@
                     }
                     
                     document.getElementById('extractedQRs').innerHTML = qrsHtml;
+                    
+                    // Show enhanced validation results if security validation was performed
+                    if (securityResults) {
+                        showEnhancedValidationResults(securityResults);
+                    }
+                    
                     showResult('validateResult');
                 } else {
                     if (result.error_type === 'NO_IMAGES_FOUND') {
@@ -3648,6 +5205,1510 @@
                 hideProgress('validateProgress');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
+            }
+        });
+
+        // Security Tab Functions
+        
+        // Validate Tab Advanced Security Functions
+        
+        // Toggle Advanced Security Validation in Validate Tab
+        function toggleAdvancedSecurityValidation() {
+            const header = document.querySelector('#validate-tab .advanced-settings-header');
+            const content = document.getElementById('advancedSecurityValidation');
+            
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+            
+            // Update chevron direction
+            const chevron = header.querySelector('.advanced-settings-toggle');
+            if (content.classList.contains('active')) {
+                chevron.style.transform = 'rotate(180deg)';
+                content.style.display = 'block';
+            } else {
+                chevron.style.transform = 'rotate(0deg)';
+                content.style.display = 'none';
+            }
+        }
+
+        // Auto-detect Security Key for Validation
+        async function detectValidateSecurityKey() {
+            const docFile = document.getElementById('docxFileValidate').files[0];
+            if (!docFile) {
+                showAlert('validateAlert', '<i class="fas fa-exclamation-circle"></i> Please select a document file first.', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('detectValidateKey');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span>';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('document', docFile);
+
+                const response = await fetch('/get_document_hash', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.existing_key) {
+                    document.getElementById('validateSecurityKey').value = result.existing_key;
+                    showAlert('validateAlert', '<i class="fas fa-check-circle"></i> Security key detected and loaded!', 'success');
+                } else {
+                    showAlert('validateAlert', '<i class="fas fa-info-circle"></i> No security key detected in this document.', 'info');
+                }
+            } catch (error) {
+                showAlert('validateAlert', `<i class="fas fa-exclamation-triangle"></i> Error detecting key: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Update Security Validation Status
+        function updateValidationStatus(statusId, status, message, icon = null) {
+            const statusElement = document.getElementById(statusId);
+            if (!statusElement) return;
+
+            // Clear existing classes
+            statusElement.className = 'status-value';
+            
+            // Add status class
+            if (status === 'success' || status === 'secure') {
+                statusElement.classList.add('success');
+                if (status === 'secure') statusElement.classList.add('secure');
+            } else if (status === 'warning') {
+                statusElement.classList.add('warning');
+            } else if (status === 'error' || status === 'unauthorized') {
+                statusElement.classList.add('error');
+                if (status === 'unauthorized') statusElement.classList.add('unauthorized');
+            } else {
+                statusElement.classList.add('pending');
+            }
+
+            // Set content
+            const iconHtml = icon ? `<i class="${icon}"></i>` : '';
+            statusElement.innerHTML = `${iconHtml} ${message}`;
+        }
+
+        // Show Enhanced Validation Results
+        function showEnhancedValidationResults(results) {
+            const validateResult = document.getElementById('validateResult');
+            
+            // Create enhanced results section
+            const enhancedSection = document.createElement('div');
+            enhancedSection.className = 'enhanced-validation-results';
+            enhancedSection.innerHTML = `
+                <h4><i class="fas fa-shield-alt"></i> Security Validation Results</h4>
+                <div class="security-indicators">
+                    <div class="security-indicator ${getSecurityIndicatorClass(results.qr_extraction_status)}">
+                        <div class="security-indicator-icon">
+                            <i class="${getSecurityIndicatorIcon(results.qr_extraction_status)}"></i>
+                        </div>
+                        <div class="security-indicator-content">
+                            <div class="security-indicator-title">QR Extraction</div>
+                            <div class="security-indicator-details">${results.qr_extraction_message || 'QR codes extracted and processed'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-indicator ${getSecurityIndicatorClass(results.security_verification_status)}">
+                        <div class="security-indicator-icon">
+                            <i class="${getSecurityIndicatorIcon(results.security_verification_status)}"></i>
+                        </div>
+                        <div class="security-indicator-content">
+                            <div class="security-indicator-title">Security Verification</div>
+                            <div class="security-indicator-details">${results.security_verification_message || 'Document security verified'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-indicator ${getSecurityIndicatorClass(results.key_authorization_status)}">
+                        <div class="security-indicator-icon">
+                            <i class="${getSecurityIndicatorIcon(results.key_authorization_status)}"></i>
+                        </div>
+                        <div class="security-indicator-content">
+                            <div class="security-indicator-title">Key Authorization</div>
+                            <div class="security-indicator-details">${results.key_authorization_message || 'Security key authorization checked'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-indicator ${getSecurityIndicatorClass(results.document_integrity_status)}">
+                        <div class="security-indicator-icon">
+                            <i class="${getSecurityIndicatorIcon(results.document_integrity_status)}"></i>
+                        </div>
+                        <div class="security-indicator-content">
+                            <div class="security-indicator-title">Document Integrity</div>
+                            <div class="security-indicator-details">${results.document_integrity_message || 'Document integrity verified'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${results.security_warnings && results.security_warnings.length > 0 ? `
+                    <div class="security-warnings">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Security Warnings</h5>
+                        <ul>
+                            ${results.security_warnings.map(warning => `<li>${warning}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                ${results.security_recommendations && results.security_recommendations.length > 0 ? `
+                    <div class="security-recommendations">
+                        <h5><i class="fas fa-lightbulb"></i> Security Recommendations</h5>
+                        <ul>
+                            ${results.security_recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+            
+            // Insert enhanced results after extracted QRs
+            const extractedQRs = document.getElementById('extractedQRs');
+            if (extractedQRs.nextSibling) {
+                validateResult.insertBefore(enhancedSection, extractedQRs.nextSibling);
+            } else {
+                validateResult.appendChild(enhancedSection);
+            }
+        }
+
+        // Get Security Indicator Class
+        function getSecurityIndicatorClass(status) {
+            switch(status) {
+                case 'success':
+                case 'secure':
+                case 'verified':
+                case 'authorized':
+                    return 'secure';
+                case 'warning':
+                case 'partial':
+                case 'unverified':
+                    return 'warning';
+                case 'error':
+                case 'failed':
+                case 'unauthorized':
+                case 'compromised':
+                    return 'unauthorized';
+                default:
+                    return 'warning';
+            }
+        }
+
+        // Get Security Indicator Icon
+        function getSecurityIndicatorIcon(status) {
+            switch(status) {
+                case 'success':
+                case 'secure':
+                case 'verified':
+                case 'authorized':
+                    return 'fas fa-check-circle';
+                case 'warning':
+                case 'partial':
+                case 'unverified':
+                    return 'fas fa-exclamation-triangle';
+                case 'error':
+                case 'failed':
+                case 'unauthorized':
+                case 'compromised':
+                    return 'fas fa-times-circle';
+                default:
+                    return 'fas fa-question-circle';
+            }
+        }
+
+        // Reset Security Validation Status
+        function resetSecurityValidationStatus() {
+            const statusIds = [
+                'qrExtractionStatus',
+                'securityVerificationStatus', 
+                'keyAuthorizationStatus',
+                'documentIntegrityStatus'
+            ];
+            
+            statusIds.forEach(id => {
+                updateValidationStatus(id, 'pending', 'Pending', 'fas fa-clock');
+            });
+        }
+
+        // Perform Advanced Security Validation
+        async function performAdvancedSecurityValidation(docFile, securityKey) {
+            const statusElement = document.getElementById('validateSecurityStatus');
+            statusElement.style.display = 'block';
+            
+            // Reset status
+            resetSecurityValidationStatus();
+            
+            try {
+                // Step 1: Basic QR Extraction
+                updateValidationStatus('qrExtractionStatus', 'pending', 'Extracting QRs...', 'fas fa-spinner fa-spin');
+                
+                // Step 2: Security Verification (if key provided)
+                if (securityKey) {
+                    updateValidationStatus('securityVerificationStatus', 'pending', 'Verifying security...', 'fas fa-spinner fa-spin');
+                    
+                    const formData = new FormData();
+                    formData.append('document', docFile);
+                    formData.append('security_key', securityKey);
+                    formData.append('verify_document_auth', document.getElementById('verifyDocumentAuth').checked);
+                    formData.append('check_qr_auth', document.getElementById('checkQrAuth').checked);
+                    
+                    const response = await fetch('/validate_qr_security', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Update all statuses based on results
+                        updateValidationStatus('qrExtractionStatus', 'success', 'QRs extracted', 'fas fa-check-circle');
+                        updateValidationStatus('securityVerificationStatus', 
+                            result.security_score >= 80 ? 'success' : 'warning', 
+                            result.security_score >= 80 ? 'Verified' : 'Partial verification',
+                            result.security_score >= 80 ? 'fas fa-shield-alt' : 'fas fa-exclamation-triangle'
+                        );
+                        updateValidationStatus('keyAuthorizationStatus', 
+                            result.key_validation === 'valid' ? 'success' : 'error',
+                            result.key_validation === 'valid' ? 'Authorized' : 'Unauthorized',
+                            result.key_validation === 'valid' ? 'fas fa-key' : 'fas fa-ban'
+                        );
+                        updateValidationStatus('documentIntegrityStatus',
+                            result.integrity_valid ? 'success' : 'error',
+                            result.integrity_valid ? 'Intact' : 'Compromised',
+                            result.integrity_valid ? 'fas fa-file-shield' : 'fas fa-exclamation-triangle'
+                        );
+                        
+                        return result;
+                    } else {
+                        // Update with error statuses
+                        updateValidationStatus('securityVerificationStatus', 'error', 'Failed', 'fas fa-times-circle');
+                        updateValidationStatus('keyAuthorizationStatus', 'error', 'Unauthorized', 'fas fa-ban');
+                        updateValidationStatus('documentIntegrityStatus', 'error', 'Unknown', 'fas fa-question-circle');
+                    }
+                } else {
+                    // No security key - basic validation only
+                    updateValidationStatus('qrExtractionStatus', 'success', 'QRs extracted', 'fas fa-check-circle');
+                    updateValidationStatus('securityVerificationStatus', 'warning', 'No key provided', 'fas fa-info-circle');
+                    updateValidationStatus('keyAuthorizationStatus', 'warning', 'Skipped', 'fas fa-info-circle');
+                    updateValidationStatus('documentIntegrityStatus', 'warning', 'Basic check only', 'fas fa-info-circle');
+                }
+                
+            } catch (error) {
+                console.error('Advanced validation error:', error);
+                updateValidationStatus('securityVerificationStatus', 'error', 'Error occurred', 'fas fa-exclamation-triangle');
+            }
+            
+            return null;
+        }
+        
+        // Embed Tab Security Enhancement Functions
+        
+        // Toggle Security Settings in Embed Tab
+        function toggleSecuritySettings() {
+            const header = document.querySelector('#embed-tab .advanced-settings-header:last-of-type');
+            const content = document.getElementById('securitySettings');
+            
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+            
+            // Update chevron direction
+            const chevron = header.querySelector('.advanced-settings-toggle');
+            if (content.classList.contains('active')) {
+                chevron.style.transform = 'rotate(180deg)';
+                content.style.display = 'block';
+            } else {
+                chevron.style.transform = 'rotate(0deg)';
+                content.style.display = 'none';
+            }
+        }
+
+        // Enable/Disable Security Controls in Embed Tab
+        function toggleEmbedSecurity() {
+            const checkbox = document.getElementById('enableDocumentSecurity');
+            const controls = document.getElementById('securityControls');
+            
+            if (checkbox.checked) {
+                controls.style.display = 'block';
+                // Auto-detect existing security key
+                detectDocumentSecurity();
+            } else {
+                controls.style.display = 'none';
+                // Clear security status and warnings
+                hideEmbedSecurityStatus();
+                hideEmbedSecurityWarnings();
+            }
+        }
+
+        // Auto-detect Document Security
+        async function detectDocumentSecurity() {
+            const docFile = document.getElementById('docxFileEmbed').files[0];
+            if (!docFile) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('document', docFile);
+
+                const response = await fetch('/get_document_hash', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.existing_key) {
+                    // Document has existing security
+                    document.getElementById('embedSecurityKey').value = result.existing_key;
+                    showEmbedSecurityStatus('success', 'Document security detected', 'Existing security key found and loaded');
+                } else {
+                    // No existing security
+                    showEmbedSecurityStatus('warning', 'No security detected', 'Generate a new security key for this document');
+                }
+            } catch (error) {
+                console.log('Security detection failed:', error.message);
+            }
+        }
+
+        // Generate Security Key for Embed
+        async function generateEmbedSecurityKey() {
+            const docFile = document.getElementById('docxFileEmbed').files[0];
+            if (!docFile) {
+                showAlert('embedAlert', '<i class="fas fa-exclamation-circle"></i> Please select a document file first.', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('generateEmbedKey');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span>';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('document', docFile);
+
+                const response = await fetch('/generate_document_key', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('embedSecurityKey').value = result.key;
+                    showEmbedSecurityStatus('success', 'Security key generated', 'New security key created for this document');
+                    showAlert('embedAlert', '<i class="fas fa-check-circle"></i> Security key generated successfully!', 'success');
+                } else {
+                    showAlert('embedAlert', `<i class="fas fa-exclamation-circle"></i> ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showAlert('embedAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Validate QR Authorization
+        async function validateEmbedQRAuth() {
+            const qrFile = document.getElementById('qrFileEmbed').files[0];
+            const securityKey = document.getElementById('embedSecurityKey').value.trim();
+            
+            if (!qrFile || !securityKey) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('qr_file', qrFile);
+                formData.append('key', securityKey);
+
+                const response = await fetch('/validate_qr_security', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (result.security_score >= 80) {
+                        showEmbedSecurityStatus('success', 'QR authorization valid', 'QR code matches document security key');
+                        hideEmbedSecurityWarnings();
+                    } else {
+                        showEmbedSecurityStatus('warning', 'QR authorization concerns', 'QR code validation has some issues');
+                        showEmbedSecurityWarnings([
+                            'QR security score is below recommended threshold',
+                            'Consider regenerating QR with proper security key'
+                        ]);
+                    }
+                } else {
+                    showEmbedSecurityStatus('error', 'QR authorization failed', 'QR code does not match document security');
+                    showEmbedSecurityWarnings([
+                        'QR code security validation failed',
+                        'QR may not be authorized for this document',
+                        'Check if QR was generated with the correct security key'
+                    ]);
+                }
+            } catch (error) {
+                console.log('QR validation error:', error.message);
+            }
+        }
+
+        // Show Embed Security Status
+        function showEmbedSecurityStatus(status, title, details) {
+            const statusElement = document.getElementById('embedSecurityStatus');
+            const statusIcon = document.getElementById('embedStatusIcon');
+            const statusTitle = document.getElementById('embedStatusTitle');
+            const statusDetails = document.getElementById('embedStatusDetails');
+
+            // Update content
+            statusTitle.textContent = title;
+            statusDetails.textContent = details;
+
+            // Update styling based on status
+            statusElement.className = `security-status-embed ${status}`;
+            
+            // Update icon
+            switch(status) {
+                case 'success':
+                    statusIcon.innerHTML = '<i class="fas fa-shield-alt"></i>';
+                    break;
+                case 'warning':
+                    statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                    break;
+                case 'error':
+                    statusIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                    break;
+            }
+
+            statusElement.style.display = 'block';
+        }
+
+        // Hide Embed Security Status
+        function hideEmbedSecurityStatus() {
+            document.getElementById('embedSecurityStatus').style.display = 'none';
+        }
+
+        // Show Embed Security Warnings
+        function showEmbedSecurityWarnings(warnings) {
+            const warningsElement = document.getElementById('embedSecurityWarnings');
+            const messagesElement = document.getElementById('embedWarningMessages');
+
+            if (warnings && warnings.length > 0) {
+                messagesElement.innerHTML = `
+                    <ul>
+                        ${warnings.map(warning => `<li>${warning}</li>`).join('')}
+                    </ul>
+                `;
+                warningsElement.style.display = 'block';
+            }
+        }
+
+        // Hide Embed Security Warnings
+        function hideEmbedSecurityWarnings() {
+            document.getElementById('embedSecurityWarnings').style.display = 'none';
+        }
+
+        // Security Validation Before Embed
+        function validateEmbedSecurity() {
+            const securityEnabled = document.getElementById('enableDocumentSecurity').checked;
+            
+            if (!securityEnabled) {
+                return true; // Security disabled, allow normal embedding
+            }
+
+            const securityKey = document.getElementById('embedSecurityKey').value.trim();
+            const qrAuthEnabled = document.getElementById('validateQrAuth').checked;
+
+            // Check if security key is provided
+            if (!securityKey) {
+                showAlert('embedAlert', '<i class="fas fa-exclamation-circle"></i> Security is enabled but no security key provided.', 'error');
+                return false;
+            }
+
+            // Validate security key format
+            if (!validateSecurityKey(securityKey)) {
+                showAlert('embedAlert', '<i class="fas fa-exclamation-circle"></i> Invalid security key format.', 'error');
+                return false;
+            }
+
+            // If QR authorization is enabled, check for warnings
+            if (qrAuthEnabled) {
+                const warnings = document.getElementById('embedSecurityWarnings');
+                if (warnings.style.display !== 'none') {
+                    const proceed = confirm('Security warnings detected. Do you want to proceed with embedding anyway?');
+                    if (!proceed) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+        
+        // 1. Generate Document Key Function
+        async function generateDocumentKey() {
+            const docFile = document.getElementById('securityDocFile').files[0];
+            if (!docFile) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please select a document file first.', 'warning');
+                return false;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('document', docFile);
+
+                const response = await fetch('/generate_document_key', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('securityKeyText').value = result.key;
+                    document.getElementById('securityKeyResult').style.display = 'block';
+                    
+                    // Auto-populate key in other fields
+                    document.getElementById('secureQrKey').value = result.key;
+                    document.getElementById('validateKey').value = result.key;
+
+                    showSecurityStatus('success', 'Security key generated successfully!');
+                    showAlert('securityAlert', '<i class="fas fa-check-circle"></i> Security key generated successfully!', 'success');
+                    return result.key;
+                } else {
+                    showAlert('securityAlert', `<i class="fas fa-exclamation-circle"></i> ${result.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 2. Generate Secure QR Function
+        async function generateSecureQR() {
+            const qrText = document.getElementById('secureQrText').value.trim();
+            const qrKey = document.getElementById('secureQrKey').value.trim();
+
+            if (!qrText) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please enter text for QR code.', 'warning');
+                return false;
+            }
+
+            if (!qrKey || !validateSecurityKey(qrKey)) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please enter a valid security key.', 'warning');
+                return false;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('text', qrText);
+                formData.append('key', qrKey);
+
+                const response = await fetch('/generate_secure_qr', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('secureQrImage').src = result.qr_url;
+                    document.getElementById('secureQrInfo').innerHTML = `
+                        <strong>Encryption Details:</strong><br>
+                        Algorithm: AES-256<br>
+                        Key Length: ${result.key_length || 256} bits<br>
+                        Data Size: ${result.encrypted_size || 'N/A'} bytes<br>
+                        Security Level: High
+                    `;
+                    document.getElementById('secureQrResult').style.display = 'block';
+                    showAlert('securityAlert', '<i class="fas fa-check-circle"></i> Secure QR code generated successfully!', 'success');
+                    return result.qr_url;
+                } else {
+                    showAlert('securityAlert', `<i class="fas fa-exclamation-circle"></i> ${result.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 3. Validate QR Security Function
+        async function validateQRSecurity() {
+            const qrFile = document.getElementById('validateQrFile').files[0];
+            const docFile = document.getElementById('validateDocFile').files[0];
+            const validateKey = document.getElementById('validateKey').value.trim();
+
+            if (!qrFile) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please select a QR code file.', 'warning');
+                return false;
+            }
+
+            if (!docFile) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please select a document file.', 'warning');
+                return false;
+            }
+
+            if (!validateKey || !validateSecurityKey(validateKey)) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please enter a valid security key.', 'warning');
+                return false;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('qr_file', qrFile);
+                formData.append('document', docFile);
+                formData.append('key', validateKey);
+
+                const response = await fetch('/validate_qr_security', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update validation grid
+                    document.getElementById('securityScore').textContent = `${result.security_score}/100`;
+                    document.getElementById('securityScore').className = `validation-value ${getScoreClass(result.security_score)}`;
+                    
+                    document.getElementById('encryptionStatus').textContent = result.encryption_status;
+                    document.getElementById('encryptionStatus').className = `validation-value ${result.encryption_valid ? 'success' : 'error'}`;
+                    
+                    document.getElementById('documentIntegrity').textContent = result.document_integrity;
+                    document.getElementById('documentIntegrity').className = `validation-value ${result.integrity_valid ? 'success' : 'error'}`;
+                    
+                    document.getElementById('qrAuthenticity').textContent = result.qr_authenticity;
+                    document.getElementById('qrAuthenticity').className = `validation-value ${result.authenticity_valid ? 'success' : 'error'}`;
+
+                    // Update details
+                    document.getElementById('validationDetails').innerHTML = `
+                        <h5><i class="fas fa-info-circle"></i> Validation Details</h5>
+                        <p><strong>Overall Status:</strong> ${result.overall_status}</p>
+                        <p><strong>Key Validation:</strong> ${result.key_validation}</p>
+                        <p><strong>Timestamp:</strong> ${new Date(result.timestamp).toLocaleString()}</p>
+                        ${result.decrypted_data ? `<p><strong>Decrypted Data:</strong> ${result.decrypted_data}</p>` : ''}
+                        ${result.warnings && result.warnings.length > 0 ? `
+                            <div class="warnings">
+                                <h6><i class="fas fa-exclamation-triangle"></i> Warnings:</h6>
+                                <ul>
+                                    ${result.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    `;
+
+                    document.getElementById('validationResults').style.display = 'block';
+                    showSecurityStatus('success', 'Security validation completed successfully!');
+                    showAlert('securityAlert', '<i class="fas fa-check-circle"></i> Security validation completed!', 'success');
+                    return result;
+                } else {
+                    showAlert('securityAlert', `<i class="fas fa-exclamation-circle"></i> ${result.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 4. Copy Security Key Function
+        function copySecurityKey() {
+            const keyText = document.getElementById('securityKeyText');
+            if (!keyText.value) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> No security key to copy.', 'warning');
+                return false;
+            }
+
+            try {
+                keyText.select();
+                keyText.setSelectionRange(0, 99999); // For mobile devices
+                
+                if (navigator.clipboard && window.isSecureContext) {
+                    // Modern approach
+                    navigator.clipboard.writeText(keyText.value).then(() => {
+                        showAlert('securityAlert', '<i class="fas fa-check"></i> Security key copied to clipboard!', 'success');
+                    });
+                } else {
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+                    showAlert('securityAlert', '<i class="fas fa-check"></i> Security key copied to clipboard!', 'success');
+                }
+                
+                return true;
+            } catch (error) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-triangle"></i> Failed to copy key.', 'error');
+                return false;
+            }
+        }
+
+        // 5. Show Security Status Function
+        function showSecurityStatus(status, message) {
+            const statusElement = document.getElementById('securityStatus');
+            const statusIcon = statusElement.querySelector('.status-icon');
+            const statusTitle = statusElement.querySelector('.status-title');
+            const statusDetails = statusElement.querySelector('.status-details');
+
+            // Update status indicator
+            statusIcon.className = `status-icon ${status}`;
+            statusTitle.textContent = `Security Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+            statusDetails.textContent = message;
+
+            // Update background color based on status
+            switch(status) {
+                case 'success':
+                    statusElement.style.background = '#f0fff4';
+                    statusElement.style.borderColor = '#68d391';
+                    break;
+                case 'warning':
+                    statusElement.style.background = '#fffaf0';
+                    statusElement.style.borderColor = '#f6ad55';
+                    break;
+                case 'error':
+                    statusElement.style.background = '#fed7d7';
+                    statusElement.style.borderColor = '#fc8181';
+                    break;
+                default:
+                    statusElement.style.background = '#f7fafc';
+                    statusElement.style.borderColor = '#e2e8f0';
+            }
+
+            statusElement.style.display = 'block';
+        }
+
+        // 6. Hash Document Function
+        async function hashDocument() {
+            const docFile = document.getElementById('securityDocFile').files[0];
+            if (!docFile) {
+                showAlert('securityAlert', '<i class="fas fa-exclamation-circle"></i> Please select a document file first.', 'warning');
+                return false;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('document', docFile);
+
+                const response = await fetch('/get_document_hash', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('documentHashText').value = result.hash;
+                    document.getElementById('documentHashResult').style.display = 'block';
+                    showAlert('securityAlert', '<i class="fas fa-check-circle"></i> Document hash computed successfully!', 'success');
+                    return result.hash;
+                } else {
+                    showAlert('securityAlert', `<i class="fas fa-exclamation-circle"></i> ${result.message}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 7. Security Key Validation Function
+        function validateSecurityKey(key) {
+            if (!key || typeof key !== 'string') {
+                return false;
+            }
+
+            // Check minimum length (should be at least 32 characters for a secure key)
+            if (key.length < 32) {
+                return false;
+            }
+
+            // Check if key contains only valid characters (alphanumeric and some special chars)
+            const validKeyPattern = /^[A-Za-z0-9+/=._-]+$/;
+            if (!validKeyPattern.test(key)) {
+                return false;
+            }
+
+            // Check if it looks like a base64 encoded key (common format)
+            try {
+                // Basic base64 pattern check
+                const base64Pattern = /^[A-Za-z0-9+/]*={0,2}$/;
+                if (base64Pattern.test(key) && key.length % 4 === 0) {
+                    return true;
+                }
+            } catch (error) {
+                // If base64 check fails, accept other valid formats
+            }
+
+            // Accept other secure key formats (hex, etc.)
+            return true;
+        }
+
+        // Helper function to get score class (already exists but ensuring it's available)
+        function getScoreClass(score) {
+            if (score >= 80) return 'success';
+            if (score >= 60) return 'warning';
+            return 'error';
+        }
+        
+        // Event Listeners for Security Tab
+        
+        // Generate Document Security Key
+        document.getElementById('generateKeyBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Generating Key...';
+            btn.disabled = true;
+
+            try {
+                await generateDocumentKey();
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Copy Security Key
+        document.getElementById('copyKeyBtn').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            if (copySecurityKey()) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }
+        });
+
+        // Get Document Hash
+        document.getElementById('getHashBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Computing Hash...';
+            btn.disabled = true;
+
+            try {
+                await hashDocument();
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Generate Secure QR
+        document.getElementById('generateSecureQrBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Generating Secure QR...';
+            btn.disabled = true;
+
+            try {
+                await generateSecureQR();
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Validate QR-Document Security
+        document.getElementById('validateSecurityBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Validating Security...';
+            btn.disabled = true;
+            showProgress('securityProgress');
+
+            try {
+                await validateQRSecurity();
+            } catch (error) {
+                showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
+            } finally {
+                hideProgress('securityProgress');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Embed Tab Security Event Listeners
+        
+        // Enable Document Security checkbox
+        document.getElementById('enableDocumentSecurity').addEventListener('change', toggleEmbedSecurity);
+        
+        // Generate Embed Security Key
+        document.getElementById('generateEmbedKey').addEventListener('click', generateEmbedSecurityKey);
+        
+        // Validate QR Authorization when QR file changes
+        document.getElementById('qrFileEmbed').addEventListener('change', function() {
+            if (document.getElementById('validateQrAuth').checked) {
+                setTimeout(validateEmbedQRAuth, 500); // Small delay to ensure file is loaded
+            }
+        });
+        
+        // Validate QR Authorization when checkbox is checked
+        document.getElementById('validateQrAuth').addEventListener('change', function() {
+            if (this.checked) {
+                validateEmbedQRAuth();
+            } else {
+                hideEmbedSecurityWarnings();
+            }
+        });
+        
+        // Auto-detect security when document file changes
+        document.getElementById('docxFileEmbed').addEventListener('change', function() {
+            if (document.getElementById('enableDocumentSecurity').checked) {
+                setTimeout(detectDocumentSecurity, 500); // Small delay to ensure file is loaded
+            }
+        });
+
+        // Validate Tab Security Event Listeners
+        
+        // Initialize advanced security settings for Validate tab
+        document.addEventListener('DOMContentLoaded', function() {
+            const advancedValidateSettingsToggle = document.querySelector('#validate-tab .advanced-settings-header');
+            if (advancedValidateSettingsToggle) {
+                advancedValidateSettingsToggle.addEventListener('click', toggleAdvancedSecurityValidation);
+            }
+
+            // Add auto-detect key functionality for Validate tab
+            const detectValidateKeyBtn = document.getElementById('detectValidateKey');
+            if (detectValidateKeyBtn) {
+                detectValidateKeyBtn.addEventListener('click', detectValidateSecurityKey);
+            }
+
+            // Add change listeners for security checkboxes in Validate tab
+            const verifyDocAuthCheckbox = document.getElementById('verifyDocumentAuth');
+            const checkQrAuthCheckbox = document.getElementById('checkQrAuth');
+            
+            if (verifyDocAuthCheckbox) {
+                verifyDocAuthCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        showAlert('validateAlert', '<i class="fas fa-info-circle"></i> Document authenticity verification enabled.', 'info');
+                    }
+                });
+            }
+            
+            if (checkQrAuthCheckbox) {
+                checkQrAuthCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        showAlert('validateAlert', '<i class="fas fa-info-circle"></i> QR authorization checking enabled.', 'info');
+                    }
+                });
+            }
+        });
+
+        // Helper function to get score class
+        function getScoreClass(score) {
+            if (score >= 80) return 'success';
+            if (score >= 60) return 'warning';
+            return 'error';
+        }
+
+        // Key Management Functions
+        let currentKeyPage = 1;
+        const keysPerPage = 10;
+        let allKeys = [];
+        let filteredKeys = [];
+
+        // Load and display key management data
+        async function loadKeyManagement() {
+            try {
+                const response = await fetch('/api/security/list-keys');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allKeys = data.keys || [];
+                    applyKeyFilters();
+                    updateKeyTable();
+                    updateSecurityStats();
+                } else {
+                    throw new Error(data.error || 'Failed to load keys');
+                }
+            } catch (error) {
+                console.error('Error loading keys:', error);
+                showAlert('securityAlert', `Error loading key management: ${error.message}`, 'error');
+            }
+        }
+
+        // Apply search and filter to keys
+        function applyKeyFilters() {
+            const searchTerm = document.getElementById('keySearchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('keyFilterStatus').value;
+            
+            filteredKeys = allKeys.filter(key => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    key.document_name.toLowerCase().includes(searchTerm) ||
+                    key.document_hash.toLowerCase().includes(searchTerm);
+                
+                // Status filter
+                let matchesStatus = true;
+                if (statusFilter !== 'all') {
+                    const now = new Date();
+                    const lastAccessed = new Date(key.last_accessed);
+                    const daysDiff = (now - lastAccessed) / (1000 * 60 * 60 * 24);
+                    
+                    switch (statusFilter) {
+                        case 'active':
+                            matchesStatus = daysDiff <= 7;
+                            break;
+                        case 'recent':
+                            matchesStatus = daysDiff <= 7;
+                            break;
+                        case 'old':
+                            matchesStatus = daysDiff >= 30;
+                            break;
+                    }
+                }
+                
+                return matchesSearch && matchesStatus;
+            });
+        }
+
+        // Update key table display
+        function updateKeyTable() {
+            const tbody = document.getElementById('keyTableBody');
+            const pagination = document.getElementById('keyTablePagination');
+            
+            if (filteredKeys.length === 0) {
+                tbody.innerHTML = `
+                    <tr class="no-data">
+                        <td colspan="7">
+                            <div class="no-data-message">
+                                <i class="fas fa-inbox"></i>
+                                <p>No secured documents found</p>
+                                <small>Generate a security key to get started</small>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                pagination.style.display = 'none';
+                return;
+            }
+
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredKeys.length / keysPerPage);
+            const startIndex = (currentKeyPage - 1) * keysPerPage;
+            const endIndex = Math.min(startIndex + keysPerPage, filteredKeys.length);
+            const pageKeys = filteredKeys.slice(startIndex, endIndex);
+
+            // Generate table rows
+            tbody.innerHTML = pageKeys.map(key => {
+                const status = getKeyStatus(key);
+                const shortHash = key.document_hash.substring(0, 8) + '...';
+                const created = new Date(key.created_at).toLocaleDateString();
+                const lastAccessed = new Date(key.last_accessed).toLocaleDateString();
+                
+                return `
+                    <tr>
+                        <td>
+                            <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                                 title="${key.document_name}">
+                                ${key.document_name}
+                            </div>
+                        </td>
+                        <td><code>${shortHash}</code></td>
+                        <td>${created}</td>
+                        <td>${lastAccessed}</td>
+                        <td><strong>${key.access_count}</strong></td>
+                        <td><span class="key-status ${status.class}">${status.text}</span></td>
+                        <td>
+                            <div class="key-actions">
+                                <button class="key-action-btn view" onclick="viewKeyDetails('${key.document_hash}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="key-action-btn download" onclick="downloadKey('${key.document_hash}')" title="Download Key">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="key-action-btn delete" onclick="deleteKey('${key.document_hash}')" title="Delete Key">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update pagination
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                document.getElementById('pageInfo').textContent = `Page ${currentKeyPage} of ${totalPages}`;
+                document.getElementById('prevPageBtn').disabled = currentKeyPage === 1;
+                document.getElementById('nextPageBtn').disabled = currentKeyPage === totalPages;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        // Get key status
+        function getKeyStatus(key) {
+            const now = new Date();
+            const lastAccessed = new Date(key.last_accessed);
+            const daysDiff = (now - lastAccessed) / (1000 * 60 * 60 * 24);
+            
+            if (daysDiff <= 7) {
+                return { class: 'active', text: 'Active' };
+            } else if (daysDiff <= 30) {
+                return { class: 'recent', text: 'Recent' };
+            } else {
+                return { class: 'old', text: 'Old' };
+            }
+        }
+
+        // View key details
+        async function viewKeyDetails(docHash) {
+            try {
+                const response = await fetch(`/api/security/key-details/${docHash}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const key = data.key;
+                    alert(`Document: ${key.document_name}\nHash: ${key.document_hash}\nCreated: ${new Date(key.created_at).toLocaleString()}\nLast Accessed: ${new Date(key.last_accessed).toLocaleString()}\nAccess Count: ${key.access_count}\nSize: ${key.key_size} bytes`);
+                } else {
+                    throw new Error(data.error || 'Failed to load key details');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error loading key details: ${error.message}`, 'error');
+            }
+        }
+
+        // Download key
+        async function downloadKey(docHash) {
+            try {
+                const response = await fetch(`/api/security/export-key/${docHash}`);
+                const blob = await response.blob();
+                
+                if (response.ok) {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `security_key_${docHash.substring(0, 8)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showAlert('securityAlert', 'Security key exported successfully', 'success');
+                } else {
+                    throw new Error('Failed to download key');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error downloading key: ${error.message}`, 'error');
+            }
+        }
+
+        // Delete key
+        async function deleteKey(docHash) {
+            const confirmed = confirm('Are you sure you want to delete this security key? This action cannot be undone.');
+            if (!confirmed) return;
+            
+            try {
+                const response = await fetch(`/api/security/delete-key/${docHash}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('securityAlert', 'Security key deleted successfully', 'success');
+                    await loadKeyManagement();
+                } else {
+                    throw new Error(data.error || 'Failed to delete key');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error deleting key: ${error.message}`, 'error');
+            }
+        }
+
+        // Export all keys
+        async function exportAllKeys() {
+            try {
+                const response = await fetch('/api/security/export-backup');
+                const blob = await response.blob();
+                
+                if (response.ok) {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `security_backup_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showBackupStatus('Export Complete', 'All security keys exported successfully', 'success');
+                } else {
+                    throw new Error('Failed to export keys');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error exporting keys: ${error.message}`, 'error');
+            }
+        }
+
+        // Import keys
+        async function importKeys() {
+            const fileInput = document.getElementById('importKeysFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showAlert('securityAlert', 'Please select a backup file to import', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('backup_file', file);
+
+            try {
+                const response = await fetch('/api/security/import-backup', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showBackupStatus('Import Complete', `Imported ${data.imported_count} security keys`, 'success');
+                    await loadKeyManagement();
+                    fileInput.value = '';
+                } else {
+                    throw new Error(data.error || 'Failed to import keys');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error importing keys: ${error.message}`, 'error');
+            }
+        }
+
+        // Cleanup old keys
+        async function cleanupOldKeys() {
+            const days = document.getElementById('cleanupDaysSelect').value;
+            const confirmed = confirm(`Are you sure you want to delete all keys not accessed for ${days} days? This action cannot be undone.`);
+            
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch('/api/security/cleanup-keys', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ days: parseInt(days) })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showBackupStatus('Cleanup Complete', `Removed ${data.deleted_count} old security keys`, 'success');
+                    await loadKeyManagement();
+                } else {
+                    throw new Error(data.error || 'Failed to cleanup keys');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error cleaning up keys: ${error.message}`, 'error');
+            }
+        }
+
+        // Show backup status
+        function showBackupStatus(title, details, type) {
+            const statusDiv = document.getElementById('backupStatus');
+            const statusTitle = document.getElementById('backupStatusTitle');
+            const statusDetails = document.getElementById('backupStatusDetails');
+            const statusIcon = statusDiv.querySelector('.status-icon i');
+            
+            statusTitle.textContent = title;
+            statusDetails.textContent = details;
+            
+            // Update icon based on type
+            statusIcon.className = type === 'success' ? 'fas fa-check-circle' : 
+                                  type === 'warning' ? 'fas fa-exclamation-triangle' : 
+                                  'fas fa-times-circle';
+            
+            statusDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Update security statistics
+        async function updateSecurityStats() {
+            try {
+                const response = await fetch('/api/security/statistics');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.statistics;
+                    
+                    // Update overview cards
+                    document.getElementById('totalDocuments').textContent = stats.total_documents || 0;
+                    document.getElementById('activeKeys').textContent = stats.active_keys || 0;
+                    document.getElementById('successRate').textContent = `${stats.success_rate || 0}%`;
+                    document.getElementById('recentActivity').textContent = stats.recent_activities || 0;
+                    
+                    // Update detailed stats
+                    document.getElementById('mostAccessed').textContent = stats.most_accessed_document || 'N/A';
+                    document.getElementById('avgAccess').textContent = stats.average_access_count || 0;
+                    document.getElementById('weeklyKeys').textContent = stats.keys_created_this_week || 0;
+                    document.getElementById('storageUsed').textContent = `${stats.storage_used_kb || 0} KB`;
+                    
+                    // Update recent activities
+                    updateRecentActivities(stats.recent_activity_list || []);
+                    
+                    // Update security alerts
+                    updateSecurityAlerts(stats.security_alerts || []);
+                    
+                } else {
+                    console.warn('Failed to load statistics:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Update recent activities display
+        function updateRecentActivities(activities) {
+            const container = document.getElementById('recentActivities');
+            
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">No recent activities</div>
+                            <div class="activity-time">Start using security features to see activities</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-${activity.icon || 'circle'}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">${activity.description}</div>
+                        <div class="activity-time">${new Date(activity.timestamp).toLocaleString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update security alerts display
+        function updateSecurityAlerts(alerts) {
+            const container = document.getElementById('securityAlerts');
+            
+            if (alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="alert-item success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>All security systems operational</span>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = alerts.map(alert => `
+                <div class="alert-item ${alert.type || 'success'}">
+                    <i class="fas fa-${alert.icon || 'info-circle'}"></i>
+                    <span>${alert.message}</span>
+                </div>
+            `).join('');
+        }
+
+        // Export statistics report
+        async function exportStatsReport() {
+            try {
+                const response = await fetch('/api/security/export-report');
+                const blob = await response.blob();
+                
+                if (response.ok) {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `security_report_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showAlert('securityAlert', 'Security report exported successfully', 'success');
+                } else {
+                    throw new Error('Failed to export report');
+                }
+            } catch (error) {
+                showAlert('securityAlert', `Error exporting report: ${error.message}`, 'error');
+            }
+        }
+
+        // Event listeners for key management
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search and filter controls
+            document.getElementById('searchKeysBtn').addEventListener('click', () => {
+                currentKeyPage = 1;
+                applyKeyFilters();
+                updateKeyTable();
+            });
+
+            document.getElementById('keySearchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    currentKeyPage = 1;
+                    applyKeyFilters();
+                    updateKeyTable();
+                }
+            });
+
+            document.getElementById('keyFilterStatus').addEventListener('change', () => {
+                currentKeyPage = 1;
+                applyKeyFilters();
+                updateKeyTable();
+            });
+
+            document.getElementById('refreshKeyListBtn').addEventListener('click', loadKeyManagement);
+
+            // Pagination controls
+            document.getElementById('prevPageBtn').addEventListener('click', () => {
+                if (currentKeyPage > 1) {
+                    currentKeyPage--;
+                    updateKeyTable();
+                }
+            });
+
+            document.getElementById('nextPageBtn').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredKeys.length / keysPerPage);
+                if (currentKeyPage < totalPages) {
+                    currentKeyPage++;
+                    updateKeyTable();
+                }
+            });
+
+            // Backup and recovery controls
+            document.getElementById('exportKeysBtn').addEventListener('click', exportAllKeys);
+            document.getElementById('importKeysBtn').addEventListener('click', importKeys);
+            document.getElementById('cleanupKeysBtn').addEventListener('click', cleanupOldKeys);
+
+            // File input handling
+            document.getElementById('importKeysFile').addEventListener('change', function() {
+                const btn = document.getElementById('importKeysBtn');
+                btn.disabled = !this.files[0];
+            });
+
+            // Statistics controls
+            document.getElementById('refreshStatsBtn').addEventListener('click', updateSecurityStats);
+            document.getElementById('exportStatsBtn').addEventListener('click', exportStatsReport);
+
+            // Load initial data when security tab is active
+            const securityTab = document.querySelector('[data-tab="security"]');
+            if (securityTab) {
+                securityTab.addEventListener('click', () => {
+                    setTimeout(() => {
+                        loadKeyManagement();
+                    }, 100);
+                });
             }
         });
     </script>
