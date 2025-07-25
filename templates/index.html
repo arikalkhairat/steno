@@ -2558,7 +2558,8 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-qrcode"></i> Watermarking Bahan Ajar Digital</h1>
-                            <p>LSB Steganography untuk Dokumen DOCX & PDF</p>
+            <p>LSB Steganography untuk Dokumen DOCX & PDF</p>
+            <div class="creator">Developed with AI Assistant</div>
         </div>
 
         <!-- Tab Navigation -->
@@ -2730,17 +2731,6 @@
                                             <option value="40">Version 40 (177x177)</option>
                                         </select>
                                     </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label">Error Correction Level</label>
-                                        <select class="form-control" id="errorCorrection" name="error_correction">
-                                            <option value="M">M - Medium (15% recovery) - Recommended</option>
-                                            <option value="L">L - Low (7% recovery)</option>
-                                            <option value="Q">Q - Quartile (25% recovery)</option>
-                                            <option value="H">H - High (30% recovery)</option>
-                                        </select>
-                                    </div>
-                                    
                                     <div class="form-group">
                                         <label class="form-label">Box Size (pixels)</label>
                                         <input type="number" class="form-control" id="boxSize" name="box_size" 
@@ -3036,27 +3026,7 @@
                                       class="form-input" rows="3" required></textarea>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Error Correction Level</label>
-                                <select id="errorCorrection" name="error_correction" class="form-input">
-                                    <option value="L">L - Low (7%)</option>
-                                    <option value="M" selected>M - Medium (15%)</option>
-                                    <option value="Q">Q - Quartile (25%)</option>
-                                    <option value="H">H - High (30%)</option>
-                                </select>
-                            </div>
 
-                            <div class="form-group">
-                                <label class="form-label">QR Version <span id="versionValue">Auto</span></label>
-                                <input type="range" id="qrVersion" name="version" min="0" max="40" value="0" 
-                                       class="range-slider">
-                                <div class="range-labels">
-                                    <span>Auto</span>
-                                    <span>40</span>
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="form-row">
                             <div class="form-group">
@@ -3076,6 +3046,9 @@
                             </button>
                             <button type="button" id="compareBtn" class="btn" style="flex: 1; background: linear-gradient(135deg, #805ad5, #6b46c1); color: white;">
                                 <i class="fas fa-balance-scale"></i> Compare Configurations
+                            </button>
+                            <button type="button" id="generateQRBtn" class="btn btn-success" style="flex: 1;">
+                                <i class="fas fa-qrcode"></i> Generate QR Code
                             </button>
                         </div>
                     </form>
@@ -3128,6 +3101,24 @@
                             <h4><i class="fas fa-chart-bar"></i> Configuration Comparison</h4>
                             <div class="comparison-table" id="comparisonTable">
                                 <!-- Comparison table will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Generated QR Code Section -->
+                        <div class="analysis-section" id="generatedQRSection" style="display: none;">
+                            <h4><i class="fas fa-qrcode"></i> Generated QR Code</h4>
+                            <div class="qr-result-content">
+                                <div class="qr-preview" id="configQRPreview">
+                                    <!-- QR Code image will be displayed here -->
+                                </div>
+                                <div class="qr-configuration" id="configQRInfo">
+                                    <!-- QR configuration details will be displayed here -->
+                                </div>
+                                <div class="download-section">
+                                    <div class="download-links" id="configQRDownload">
+                                        <!-- Download link will be populated here -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -4445,6 +4436,11 @@
                 await compareQRConfigurations();
             });
 
+            // Generate QR Code button functionality
+            document.getElementById('generateQRBtn').addEventListener('click', async function() {
+                await generateQRFromConfig();
+            });
+
             // Add Generate Advanced QR button
             const formActions = document.querySelector('#configForm .form-actions');
             const generateAdvancedBtn = document.createElement('button');
@@ -4550,6 +4546,157 @@
                 compareBtn.innerHTML = originalText;
                 compareBtn.disabled = false;
                 showProcessDetails('configProcess');
+            }
+        }
+
+        async function generateQRFromConfig() {
+            const text = document.getElementById('configText').value.trim();
+            if (!text) {
+                showAlert('configAlert', 'Silakan masukkan teks untuk generate QR Code.', 'error');
+                return;
+            }
+
+            const generateQRBtn = document.getElementById('generateQRBtn');
+            const originalText = generateQRBtn.innerHTML;
+            generateQRBtn.innerHTML = '<span class="loading"></span> Generating...';
+            generateQRBtn.disabled = true;
+
+            showProgress('configProgress');
+            addLogEntry('configLog', 'Memulai generate QR Code...', 'info');
+
+            try {
+                // Get current configuration values
+                const boxSize = document.getElementById('boxSize').value || 10;
+                const borderSize = document.getElementById('borderSize').value || 4;
+
+                const formData = new FormData();
+                formData.append('text', text);
+                formData.append('box_size', boxSize);
+                formData.append('border', borderSize);
+                formData.append('error_correction', 'M'); // Default to Medium
+                formData.append('analyze', 'true'); // Include analysis data
+
+                const response = await fetch('/generate_qr_advanced', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayGeneratedQRResult(result);
+                    showResult('configResult');
+                    document.getElementById('generatedQRSection').style.display = 'block';
+                    addLogEntry('configLog', 'QR Code berhasil di-generate.', 'success');
+                    showAlert('configAlert', 'QR Code berhasil di-generate!', 'success');
+                } else {
+                    showAlert('configAlert', result.message || 'Gagal generate QR Code.', 'error');
+                    addLogEntry('configLog', `Error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('configAlert', 'Terjadi kesalahan saat generate QR Code.', 'error');
+                addLogEntry('configLog', `Exception: ${error.message}`, 'error');
+            } finally {
+                hideProgress('configProgress');
+                generateQRBtn.innerHTML = originalText;
+                generateQRBtn.disabled = false;
+                showProcessDetails('configProcess');
+            }
+        }
+
+        function displayGeneratedQRResult(result) {
+            // Display QR Code image
+            const qrPreview = document.getElementById('configQRPreview');
+            if (result.qr_filename) {
+                qrPreview.innerHTML = `
+                    <img src="/download_generated/${result.qr_filename}" alt="Generated QR Code" 
+                         style="max-width: 300px; border: 2px solid var(--border-color); border-radius: 8px;">
+                `;
+            }
+
+            // Display QR Configuration Info
+            const qrInfo = document.getElementById('configQRInfo');
+            if (result.configuration) {
+                const config = result.configuration;
+                qrInfo.innerHTML = `
+                    <h5><i class="fas fa-info-circle"></i> QR Configuration</h5>
+                    <div class="qr-config-grid">
+                        <div class="qr-config-item">
+                            <span class="qr-config-label">Requested Version:</span>
+                            <span class="qr-config-value">${config.requested_version || 'Auto'}</span>
+                        </div>
+                        <div class="qr-config-item">
+                            <span class="qr-config-label">Actual Version:</span>
+                            <span class="qr-config-value">${config.actual_version}</span>
+                        </div>
+                        <div class="qr-config-item">
+                            <span class="qr-config-label">Error Correction:</span>
+                            <span class="qr-config-value">${config.error_correction}</span>
+                        </div>
+                        <div class="qr-config-item">
+                            <span class="qr-config-label">Box Size:</span>
+                            <span class="qr-config-value">${config.box_size} pixels</span>
+                        </div>
+                        <div class="qr-config-item">
+                            <span class="qr-config-label">Border Size:</span>
+                            <span class="qr-config-value">${config.border}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Display analysis info if available
+                if (result.analysis) {
+                    const analysis = result.analysis;
+                    qrInfo.innerHTML += `
+                        <h5 style="margin-top: 20px;"><i class="fas fa-chart-line"></i> Analysis Results</h5>
+                        <div class="qr-config-grid">
+                            <div class="qr-config-item">
+                                <span class="qr-config-label">Text Length:</span>
+                                <span class="qr-config-value">${analysis.data_info.length} characters</span>
+                            </div>
+                            <div class="qr-config-item">
+                                <span class="qr-config-label">Optimal Encoding:</span>
+                                <span class="qr-config-value">${analysis.data_info.optimal_encoding}</span>
+                            </div>
+                            ${analysis.recommended_config ? `
+                                <div class="qr-config-item">
+                                    <span class="qr-config-label">Recommended Version:</span>
+                                    <span class="qr-config-value">${analysis.recommended_config.version}</span>
+                                </div>
+                                <div class="qr-config-item">
+                                    <span class="qr-config-label">Recommendation Reason:</span>
+                                    <span class="qr-config-value">${analysis.recommended_config.reason}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    // Display optimal versions
+                    if (analysis.optimal_versions) {
+                        qrInfo.innerHTML += `
+                            <h6 style="margin-top: 15px;"><i class="fas fa-lightbulb"></i> Minimum Versions by Error Level</h6>
+                            <div class="qr-config-grid">
+                                ${Object.entries(analysis.optimal_versions).map(([level, version]) => `
+                                    <div class="qr-config-item">
+                                        <span class="qr-config-label">Level ${level}:</span>
+                                        <span class="qr-config-value">${version}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            // Display download link
+            const downloadSection = document.getElementById('configQRDownload');
+            if (result.qr_filename) {
+                downloadSection.innerHTML = `
+                    <a href="/download_generated/${result.qr_filename}" class="download-link" download>
+                        <i class="fas fa-download"></i> Download QR Code
+                    </a>
+                `;
             }
         }
 
