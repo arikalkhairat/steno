@@ -5,7 +5,11 @@ import os
 import subprocess
 import uuid
 import shutil
-from flask import Flask, render_template, request, jsonify, send_from_directory
+import json
+import csv
+import io
+from datetime import datetime, timedelta
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response
 from PIL import Image
 import numpy as np
 import fitz  # PyMuPDF
@@ -228,7 +232,6 @@ def analyze_qr_text_route():
         else:
             text = request.form.get('text')
             # Parse target_image_sizes from form if provided as JSON string
-            import json
             target_sizes_str = request.form.get('target_image_sizes', '[]')
             try:
                 target_image_sizes = json.loads(target_sizes_str) if target_sizes_str else []
@@ -270,7 +273,6 @@ def compare_qr_versions_route():
         else:
             text = request.form.get('text')
             # Parse versions from form if provided as JSON string
-            import json
             versions_str = request.form.get('versions', 'null')
             try:
                 versions = json.loads(versions_str) if versions_str != 'null' else None
@@ -1721,8 +1723,6 @@ def api_export_single_key(doc_hash):
     """Export a single security key as JSON file."""
     try:
         from security_storage import retrieve_document_key
-        import json
-        from flask import Response
         
         key_data = retrieve_document_key(doc_hash)
         if not key_data:
@@ -1786,8 +1786,6 @@ def api_export_security_backup():
     """Export all security keys as backup file."""
     try:
         from security_storage import export_security_backup
-        from flask import Response
-        import json
         
         backup_data = export_security_backup()
         json_data = json.dumps(backup_data, indent=2)
@@ -1812,7 +1810,6 @@ def api_import_security_backup():
     """Import security keys from backup file."""
     try:
         from security_storage import import_security_backup
-        import json
         
         if 'backup_file' not in request.files:
             return jsonify({
@@ -1903,12 +1900,15 @@ def api_cleanup_old_keys():
 def api_get_security_statistics():
     """Get comprehensive security statistics."""
     try:
-        from security_storage import list_secured_documents, get_security_statistics
+        from security_storage import list_secured_documents, get_storage_stats
         import os
         from datetime import datetime, timedelta
         
         # Get all keys
         all_keys = list_secured_documents()
+        
+        # Get storage stats
+        storage_stats = get_storage_stats()
         
         # Calculate basic statistics
         total_documents = len(all_keys)
@@ -1916,37 +1916,60 @@ def api_get_security_statistics():
         week_ago = now - timedelta(days=7)
         
         # Active keys (accessed in last 7 days)
-        active_keys = sum(1 for key in all_keys 
-                         if datetime.fromisoformat(key['last_accessed'].replace('Z', '+00:00')) > week_ago)
+        active_keys = 0
+        weekly_keys = 0
         
-        # Keys created this week
-        weekly_keys = sum(1 for key in all_keys 
-                         if datetime.fromisoformat(key['created_at'].replace('Z', '+00:00')) > week_ago)
+        for key in all_keys:
+            try:
+                # Parse last_accessed date safely
+                last_accessed_str = key.get('last_accessed', '')
+                if last_accessed_str:
+                    # Handle different date formats
+                    if 'Z' in last_accessed_str:
+                        last_accessed_str = last_accessed_str.replace('Z', '+00:00')
+                    last_accessed = datetime.fromisoformat(last_accessed_str.replace('Z', ''))
+                    if last_accessed > week_ago:
+                        active_keys += 1
+                
+                # Parse created_at date safely
+                created_at_str = key.get('created_at', '')
+                if created_at_str:
+                    if 'Z' in created_at_str:
+                        created_at_str = created_at_str.replace('Z', '+00:00')
+                    created_at = datetime.fromisoformat(created_at_str.replace('Z', ''))
+                    if created_at > week_ago:
+                        weekly_keys += 1
+            except (ValueError, TypeError) as e:
+                # Skip keys with invalid date formats
+                continue
         
         # Most accessed document
-        most_accessed = max(all_keys, key=lambda x: x['access_count'], default=None)
-        most_accessed_name = most_accessed['document_name'] if most_accessed else 'N/A'
+        most_accessed = None
+        if all_keys:
+            most_accessed = max(all_keys, key=lambda x: x.get('access_count', 0), default=None)
+        most_accessed_name = most_accessed.get('document_name', 'N/A') if most_accessed else 'N/A'
         
         # Average access count
-        avg_access = sum(key['access_count'] for key in all_keys) / len(all_keys) if all_keys else 0
+        if all_keys:
+            avg_access = sum(key.get('access_count', 0) for key in all_keys) / len(all_keys)
+        else:
+            avg_access = 0
         
-        # Storage calculation
-        try:
-            storage_path = os.path.join(BASE_DIR, 'security_keys.json')
-            storage_used_bytes = os.path.getsize(storage_path) if os.path.exists(storage_path) else 0
-            storage_used_kb = round(storage_used_bytes / 1024, 2)
-        except:
-            storage_used_kb = 0
+        # Storage calculation from storage stats
+        storage_used_kb = storage_stats.get('file_size_kb', 0)
         
         # Success rate (simplified calculation)
         success_rate = 95 if total_documents > 0 else 100
         
         # Recent activities (mock data based on keys)
         recent_activities = []
-        for key in sorted(all_keys, key=lambda x: x['last_accessed'], reverse=True)[:5]:
+        for key in sorted(all_keys, key=lambda x: x.get('last_accessed', ''), reverse=True)[:5]:
+            doc_name = key.get('document_name', 'Unknown')
+            if len(doc_name) > 30:
+                doc_name = doc_name[:30] + '...'
             recent_activities.append({
-                'description': f"Key accessed for {key['document_name'][:30]}{'...' if len(key['document_name']) > 30 else ''}",
-                'timestamp': key['last_accessed'],
+                'description': f"Key accessed for {doc_name}",
+                'timestamp': key.get('last_accessed', ''),
                 'icon': 'key'
             })
         
@@ -1982,7 +2005,8 @@ def api_get_security_statistics():
             'keys_created_this_week': weekly_keys,
             'storage_used_kb': storage_used_kb,
             'recent_activity_list': recent_activities,
-            'security_alerts': security_alerts
+            'security_alerts': security_alerts,
+            'storage_stats': storage_stats
         }
         
         return jsonify({
@@ -1991,9 +2015,26 @@ def api_get_security_statistics():
         })
         
     except Exception as e:
+        print(f"[ERROR] Security statistics error: {str(e)}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': str(e),
+            'statistics': {
+                'total_documents': 0,
+                'active_keys': 0,
+                'success_rate': 0,
+                'recent_activities': 0,
+                'most_accessed_document': 'N/A',
+                'average_access_count': 0,
+                'keys_created_this_week': 0,
+                'storage_used_kb': 0,
+                'recent_activity_list': [],
+                'security_alerts': [{
+                    'type': 'error',
+                    'icon': 'exclamation-triangle',
+                    'message': 'Error loading security statistics'
+                }]
+            }
         }), 500
 
 
@@ -2002,9 +2043,6 @@ def api_export_security_report():
     """Export security statistics as CSV report."""
     try:
         from security_storage import list_secured_documents
-        from flask import Response
-        import csv
-        import io
         from datetime import datetime
         
         # Get all keys
