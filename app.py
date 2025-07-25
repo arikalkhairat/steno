@@ -711,7 +711,12 @@ def embed_document_route():
                 qr_image_url = process_result.get("qr_image", "")
                 public_dir = process_result.get("public_dir", "")
                 qr_info = process_result.get("qr_info", None)
-                print(f"[*] Mendapatkan {len(processed_images)} gambar yang diproses")
+                print(f"[*] ✅ SUCCESS: Mendapatkan {len(processed_images)} gambar yang diproses")
+                print(f"[*] 📊 Processed images data: {processed_images}")
+                
+                # Ensure proper path format for frontend with detailed logging
+                for i, img in enumerate(processed_images):
+                    print(f"[*] 🔍 Image {i} - Original: {img.get('original')}, Watermarked: {img.get('watermarked')}")
             else:
                 print("[!] Tidak mendapatkan detail gambar yang diproses")
         except ValueError as ve:
@@ -766,6 +771,11 @@ def embed_document_route():
         if os.path.exists(qr_temp_path):
             os.remove(qr_temp_path)
 
+        # Enhanced logging before sending response
+        print(f"[*] 📤 SENDING RESPONSE:")
+        print(f"[*] 📊 processed_images count: {len(processed_images)}")
+        print(f"[*] 🔍 processed_images content: {processed_images}")
+        
         return jsonify({
             "success": True,
             "message": f"Watermark berhasil disisipkan ke {'dokumen' if is_docx else 'PDF'}!",
@@ -1189,6 +1199,10 @@ def generate_document_key():
             # Generate document key
             document_key = security_utils.generate_document_key(temp_path, additional_data)
             
+            # Validate that key was generated successfully
+            if not document_key:
+                raise ValueError("Failed to generate document key")
+            
             # Generate document hash for validation
             document_hash = security_utils.generate_document_hash(temp_path)
             
@@ -1201,6 +1215,7 @@ def generate_document_key():
             return jsonify({
                 'success': True,
                 'document_key': document_key,
+                'key': document_key,  # Backward compatibility
                 'document_hash': document_hash,
                 'key_signature': key_signature,
                 'document_name': document_file.filename,
@@ -1210,12 +1225,27 @@ def generate_document_key():
                 'message': 'Document security key generated successfully'
             })
 
+        except Exception as key_error:
+            # Log the specific error for debugging
+            print(f"Key generation error: {str(key_error)}")
+            
+            return jsonify({
+                'success': False,
+                'error': f'Key generation failed: {str(key_error)}',
+                'security_status': 'generation_failed'
+            }), 500
+
         finally:
             # Clean up temporary file
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except Exception as cleanup_error:
+                print(f"Warning: Failed to cleanup temp file {temp_path}: {cleanup_error}")
 
     except Exception as e:
+        # Log the error for debugging
+        print(f"Document key generation error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e),

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Image Display</title>
+    <style>
+        .image-comparison {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .image-item {
+            flex: 1;
+            text-align: center;
+        }
+        .image-item img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
+        .image-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Image Display Function</h1>
+    
+    <button onclick="testImageDisplay()">Test with Sample Data</button>
+    <button onclick="testWithEmptyData()">Test with Empty Data</button>
+    
+    <div id="processedImages"></div>
+    
+    <div id="debug"></div>
+
+    <script>
+        function displayImageComparison(containerId, processedImages) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('❌ Container not found:', containerId);
+                return;
+            }
+
+            console.log('🔍 displayImageComparison called');
+            console.log('📦 Container ID:', containerId);  
+            console.log('📊 ProcessedImages data:', processedImages);
+            console.log('📋 ProcessedImages type:', typeof processedImages);
+            console.log('📈 ProcessedImages length:', processedImages ? processedImages.length : 'undefined');
+
+            if (!processedImages || !Array.isArray(processedImages) || processedImages.length === 0) {
+                console.log('⚠️ No valid processed images data');
+                container.innerHTML = '<p><i class="fas fa-info-circle"></i> Tidak ada gambar yang diproses untuk ditampilkan perbandingan.</p>';
+                return;
+            }
+
+            console.log('✅ Valid processed images found, creating display...');
+            container.innerHTML = '<h5><i class="fas fa-images"></i> Perbandingan Gambar</h5>';
+            
+            processedImages.forEach((img, index) => {
+                console.log(`🖼️ Processing image ${index}:`, img);
+                
+                const comparison = document.createElement('div');
+                comparison.className = 'image-comparison';
+                
+                // Handle different path formats - use the full path as provided by backend
+                const originalPath = img.original.startsWith('/') ? img.original : `/static/generated/${img.original}`;
+                const watermarkedPath = img.watermarked.startsWith('/') ? img.watermarked : `/static/generated/${img.watermarked}`;
+                
+                console.log(`🔗 Paths for image ${index}:`);
+                console.log(`   Original: ${originalPath}`);
+                console.log(`   Watermarked: ${watermarkedPath}`);
+                
+                comparison.innerHTML = `
+                    <div class="image-item">
+                        <h6>Gambar Asli ${index + 1}</h6>
+                        <img src="${originalPath}" alt="Original ${index + 1}" 
+                             onload="console.log('✅ Loaded:', this.src)" 
+                             onerror="console.error('❌ Failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div style="display:none; padding:20px; background:#f8f9fa; border:1px dashed #dee2e6; text-align:center; color:#6c757d;">
+                            <i class="fas fa-image"></i><br>Gambar tidak ditemukan<br><small>${originalPath}</small>
+                        </div>
+                    </div>
+                    <div class="image-item">
+                        <h6>Gambar Watermark ${index + 1}</h6>
+                        <img src="${watermarkedPath}" alt="Watermarked ${index + 1}" 
+                             onload="console.log('✅ Loaded:', this.src)" 
+                             onerror="console.error('❌ Failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div style="display:none; padding:20px; background:#f8f9fa; border:1px dashed #dee2e6; text-align:center; color:#6c757d;">
+                            <i class="fas fa-image"></i><br>Gambar tidak ditemukan<br><small>${watermarkedPath}</small>
+                        </div>
+                    </div>
+                    ${img.image_size ? `<div class="image-info">Ukuran: ${img.image_size}</div>` : ''}
+                `;
+                container.appendChild(comparison);
+            });
+
+            console.log('✅ Image comparison display completed successfully');
+        }
+
+        function testImageDisplay() {
+            // Simulate real data structure from backend
+            const sampleData = [
+                {
+                    original: "processed_14c02b7ff95845378cf1bab3a3bdb386/original_0.png",
+                    watermarked: "processed_14c02b7ff95845378cf1bab3a3bdb386/watermarked_0.png",
+                    image_size: "800x600"
+                },
+                {
+                    original: "processed_14c02b7ff95845378cf1bab3a3bdb386/original_1.png", 
+                    watermarked: "processed_14c02b7ff95845378cf1bab3a3bdb386/watermarked_1.png",
+                    image_size: "800x600"
+                }
+            ];
+            
+            document.getElementById('debug').innerHTML = '<h3>Testing with sample data:</h3><pre>' + JSON.stringify(sampleData, null, 2) + '</pre>';
+            displayImageComparison('processedImages', sampleData);
+        }
+
+        function testWithEmptyData() {
+            document.getElementById('debug').innerHTML = '<h3>Testing with empty data</h3>';
+            displayImageComparison('processedImages', []);
+        }
+    </script>
+</body>
+</html>

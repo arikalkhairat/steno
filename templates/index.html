@@ -3820,23 +3820,49 @@
 
         function displayImageComparison(containerId, processedImages) {
             const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container not found:', containerId);
+                return;
+            }
+
+            console.log('displayImageComparison called with:', processedImages);
+
+            if (!processedImages || processedImages.length === 0) {
+                container.innerHTML = '<p><i class="fas fa-info-circle"></i> Tidak ada gambar yang diproses untuk ditampilkan perbandingan.</p>';
+                return;
+            }
+
             container.innerHTML = '<h5><i class="fas fa-images"></i> Perbandingan Gambar</h5>';
             
             processedImages.forEach((img, index) => {
                 const comparison = document.createElement('div');
                 comparison.className = 'image-comparison';
+                
+                // Handle different path formats - use the full path as provided by backend
+                const originalPath = img.original.startsWith('/') ? img.original : `/static/generated/${img.original}`;
+                const watermarkedPath = img.watermarked.startsWith('/') ? img.watermarked : `/static/generated/${img.watermarked}`;
+                
                 comparison.innerHTML = `
                     <div class="image-item">
                         <h6>Gambar Asli ${index + 1}</h6>
-                        <img src="/static/generated/${img.original}" alt="Original ${index + 1}">
+                        <img src="${originalPath}" alt="Original ${index + 1}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div style="display:none; padding:20px; background:#f8f9fa; border:1px dashed #dee2e6; text-align:center; color:#6c757d;">
+                            <i class="fas fa-image"></i><br>Gambar tidak ditemukan<br><small>${originalPath}</small>
+                        </div>
                     </div>
                     <div class="image-item">
                         <h6>Gambar Watermark ${index + 1}</h6>
-                        <img src="/static/generated/${img.watermarked}" alt="Watermarked ${index + 1}">
+                        <img src="${watermarkedPath}" alt="Watermarked ${index + 1}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div style="display:none; padding:20px; background:#f8f9fa; border:1px dashed #dee2e6; text-align:center; color:#6c757d;">
+                            <i class="fas fa-image"></i><br>Gambar tidak ditemukan<br><small>${watermarkedPath}</small>
+                        </div>
                     </div>
+                    ${img.image_size ? `<div class="image-info">Ukuran: ${img.image_size}</div>` : ''}
                 `;
                 container.appendChild(comparison);
             });
+
+            console.log('Image comparison displayed successfully');
         }
 
         function displayDetailedProcess(logData, qrInfo, processedImages, qrConfig) {
@@ -5055,9 +5081,35 @@
                         </a>
                     `;
                     
-                    // Display image comparisons
-                    if (result.processed_images) {
+                    // Display image comparisons with enhanced debugging
+                    console.log('=== IMAGE COMPARISON DEBUG ===');
+                    console.log('Full result object:', result);
+                    console.log('result.processed_images:', result.processed_images);
+                    console.log('Type:', typeof result.processed_images);
+                    console.log('Length:', result.processed_images ? result.processed_images.length : 'undefined');
+                    console.log('Array check:', Array.isArray(result.processed_images));
+                    
+                    if (result.processed_images && Array.isArray(result.processed_images) && result.processed_images.length > 0) {
+                        console.log('✅ Calling displayImageComparison with:', result.processed_images);
                         displayImageComparison('processedImages', result.processed_images);
+                    } else {
+                        console.log('❌ No processed images found or empty array');
+                        console.log('Checking if processedImages container exists...');
+                        const container = document.getElementById('processedImages');
+                        console.log('Container found:', !!container);
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Tidak ada gambar yang diproses untuk ditampilkan perbandingan.
+                                    <br><small style="font-family: monospace;">Debug Info:</small>
+                                    <br><small style="font-family: monospace;">Type: ${typeof result.processed_images}</small>
+                                    <br><small style="font-family: monospace;">IsArray: ${Array.isArray(result.processed_images)}</small>
+                                    <br><small style="font-family: monospace;">Length: ${result.processed_images ? result.processed_images.length : 'undefined'}</small>
+                                    <br><small style="font-family: monospace;">Data: ${JSON.stringify(result.processed_images)}</small>
+                                </div>
+                            `;
+                        }
                     }
                     
                     // Display detailed process explanation for first image
@@ -5752,6 +5804,12 @@
                 return false;
             }
 
+            // Show loading state
+            const generateBtn = document.getElementById('generateKeyBtn');
+            const originalBtnText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            generateBtn.disabled = true;
+
             try {
                 const formData = new FormData();
                 formData.append('document', docFile);
@@ -5762,25 +5820,44 @@
                 });
 
                 const result = await response.json();
+                console.log('Generate key response:', result); // Debug log
 
                 if (result.success) {
-                    document.getElementById('securityKeyText').value = result.key;
+                    // Ensure we have a document_key
+                    const documentKey = result.document_key || result.key;
+                    if (!documentKey) {
+                        throw new Error('No security key received from server');
+                    }
+
+                    document.getElementById('securityKeyText').value = documentKey;
                     document.getElementById('securityKeyResult').style.display = 'block';
                     
                     // Auto-populate key in other fields
-                    document.getElementById('secureQrKey').value = result.key;
-                    document.getElementById('validateKey').value = result.key;
+                    document.getElementById('secureQrKey').value = documentKey;
+                    document.getElementById('validateKey').value = documentKey;
+
+                    // Also display document hash if available
+                    if (result.document_hash) {
+                        document.getElementById('documentHashText').value = result.document_hash;
+                        document.getElementById('documentHashResult').style.display = 'block';
+                    }
 
                     showSecurityStatus('success', 'Security key generated successfully!');
                     showAlert('securityAlert', '<i class="fas fa-check-circle"></i> Security key generated successfully!', 'success');
-                    return result.key;
+                    return documentKey;
                 } else {
-                    showAlert('securityAlert', `<i class="fas fa-exclamation-circle"></i> ${result.message}`, 'error');
+                    const errorMsg = result.error || result.message || 'Unknown error occurred';
+                    showAlert('securityAlert', `<i class="fas fa-exclamation-circle"></i> ${errorMsg}`, 'error');
                     return false;
                 }
             } catch (error) {
+                console.error('Generate key error:', error); // Debug log
                 showAlert('securityAlert', `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`, 'error');
                 return false;
+            } finally {
+                // Restore button state
+                generateBtn.innerHTML = originalBtnText;
+                generateBtn.disabled = false;
             }
         }
 
