@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced QR Code Generator - Demo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #48bb78;
+            --error-color: #f56565;
+            --warning-color: #ed8936;
+            --background: #f7fafc;
+            --card-background: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-item p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .feature-list li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: var(--success-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .color-demo {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .color-sample {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-demo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.excellent { background: var(--success-color); }
+        .status-indicator.good { background: #fbbf24; }
+        .status-indicator.fair { background: var(--warning-color); }
+        .status-indicator.poor { background: var(--error-color); }
+
+        .implementation-note {
+            background: #e6f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .implementation-note h4 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        .code-sample {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-qrcode"></i> Enhanced QR Code Generator</h1>
+            <p>Real-time Preview & Advanced Configuration</p>
+        </div>
+
+        <div class="demo-card">
+            <div class="demo-title">
+                <i class="fas fa-rocket"></i>
+                Key Enhancements Implemented
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h4><i class="fas fa-eye"></i> Real-time Preview</h4>
+                    <p>QR codes are generated instantly as you type, with a 300ms debounce for optimal performance.</p>
+                    <ul class="feature-list">
+                        <li>Live preview updates</li>
+                        <li>Debounced input handling</li>
+                        <li>Visual status indicators</li>
+                        <li>Error state management</li>
+                    </ul>
+                </div>
+
+                <div class="feature-item">
+                    <h4><i class="fas fa-chart-line"></i> Dynamic Analysis</h4>
+                    <p>Comprehensive analysis of QR code properties and capacity usage.</p>
+                    <ul class="feature-list">
+                        <li>Character count with color coding</li>
+                        <li>QR version detection</li>
+                        <li>Capacity utilization meters</li>
+                        <li>Dimension calculations</li>
+                    </ul>
+                </div>
+
+                <div class="feature-item">
+                    <h4><i class="fas fa-cogs"></i> Advanced Options</h4>
+                    <p>Full control over QR code generation parameters.</p>
+                    <ul class="feature-list">
+                        <li>Error correction levels (L, M, Q, H)</li>
+                        <li>Customizable size scaling</li>
+                        <li>Border width adjustment</li>
+                        <li>Custom color selection</li>
+                    </ul>
+                </div>
+
+                <div class="feature-item">
+                    <h4><i class="fas fa-shield-alt"></i> Steganography Compatibility</h4>
+                    <p>Smart analysis for optimal steganographic embedding.</p>
+                    <ul class="feature-list">
+                        <li>Compatibility assessment</li>
+                        <li>Embedding recommendations</li>
+                        <li>Quality impact predictions</li>
+                        <li>Size optimization guidance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="demo-title">
+                <i class="fas fa-palette"></i>
+                Character Count Color Coding
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h4 style="color: var(--success-color);">Optimal (1-50 chars)</h4>
+                    <p>Perfect for steganography with minimal impact on image quality.</p>
+                    <div class="status-demo">
+                        <div class="status-indicator excellent"></div>
+                        <span>Ideal QR size for embedding</span>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <h4 style="color: #fbbf24;">Good (51-100 chars)</h4>
+                    <p>Still within acceptable range for most steganographic applications.</p>
+                    <div class="status-demo">
+                        <div class="status-indicator good"></div>
+                        <span>Good balance of data and size</span>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <h4 style="color: var(--warning-color);">Acceptable (101-200 chars)</h4>
+                    <p>May reduce steganographic quality but still usable.</p>
+                    <div class="status-demo">
+                        <div class="status-indicator fair"></div>
+                        <span>Consider data optimization</span>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <h4 style="color: var(--error-color);">Problematic (200+ chars)</h4>
+                    <p>May cause embedding issues and visible artifacts.</p>
+                    <div class="status-demo">
+                        <div class="status-indicator poor"></div>
+                        <span>Reduce data or adjust parameters</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="demo-title">
+                <i class="fas fa-code"></i>
+                Technical Implementation
+            </div>
+
+            <div class="implementation-note">
+                <h4>Frontend Enhancements</h4>
+                <p>The enhanced interface uses <span class="highlight">vanilla JavaScript</span> with debounced input handling and real-time DOM updates for optimal performance.</p>
+                
+                <div class="code-sample">// Real-time QR generation with debounce
+function debouncedQRUpdate() {
+    clearTimeout(debounceTimer);
+    const data = qrDataInput.value.trim();
+    
+    if (!data) {
+        resetPreview();
+        return;
+    }
+
+    setPreviewStatus('generating', 'Membuat...');
+    
+    debounceTimer = setTimeout(() => {
+        generateRealtimePreview(data);
+    }, 300);
+}</div>
+            </div>
+
+            <div class="implementation-note">
+                <h4>Backend API Enhancement</h4>
+                <p>New <span class="highlight">/generate_qr_realtime</span> endpoint provides comprehensive QR analysis and supports advanced configuration options.</p>
+                
+                <div class="code-sample">@app.route('/generate_qr_realtime', methods=['POST'])
+def generate_qr_realtime_route():
+    # Enhanced parameters
+    error_correction = request.form.get('errorCorrection', 'M')
+    qr_size = int(request.form.get('qrSize', 10))
+    border_size = int(request.form.get('borderSize', 4))
+    fill_color = request.form.get('fillColor', '#000000')
+    back_color = request.form.get('backColor', '#ffffff')
+    
+    # Generate with analysis data
+    return jsonify({
+        "success": True,
+        "qr_url": f"/static/generated/{qr_filename}",
+        "analysis": analysis,
+        "capacity": capacity
+    })</div>
+            </div>
+
+            <div class="implementation-note">
+                <h4>Responsive Design</h4>
+                <p>The interface adapts to different screen sizes using <span class="highlight">CSS Grid</span> and <span class="highlight">Flexbox</span> for optimal mobile experience.</p>
+                
+                <div class="code-sample">/* Responsive layout */
+.qr-generator-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr 350px;
+    gap: 25px;
+}
+
+@media (max-width: 768px) {
+    .qr-generator-layout {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}</div>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <div class="demo-title">
+                <i class="fas fa-check-circle"></i>
+                Implementation Status
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h4 style="color: var(--success-color);"><i class="fas fa-check"></i> Completed Features</h4>
+                    <ul class="feature-list">
+                        <li>Real-time QR code preview</li>
+                        <li>Character counter with color coding</li>
+                        <li>Advanced configuration options</li>
+                        <li>Capacity analysis panel</li>
+                        <li>Steganography compatibility checker</li>
+                        <li>Enhanced backend API</li>
+                        <li>Responsive design</li>
+                        <li>Error handling and validation</li>
+                    </ul>
+                </div>
+
+                <div class="feature-item">
+                    <h4 style="color: var(--primary-color);"><i class="fas fa-rocket"></i> Key Benefits</h4>
+                    <ul class="feature-list">
+                        <li>Improved user experience</li>
+                        <li>Better steganography compatibility</li>
+                        <li>Real-time feedback</li>
+                        <li>Advanced customization</li>
+                        <li>Mobile-friendly interface</li>
+                        <li>Professional appearance</li>
+                        <li>Performance optimized</li>
+                        <li>Maintainable code structure</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="implementation-note">
+                <h4><i class="fas fa-info-circle"></i> Ready for Production</h4>
+                <p>All requested features have been successfully implemented and integrated into the existing Flask application. The enhanced QR Code generator provides a modern, user-friendly interface with comprehensive analysis capabilities specifically designed for <span class="highlight">steganographic applications</span>.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

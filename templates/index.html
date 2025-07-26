@@ -990,6 +990,442 @@
             color: #c2410c;
             margin-bottom: 8px;
         }
+
+        /* Enhanced QR Generator Styles */
+        .qr-generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 350px;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .qr-input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .qr-textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .character-counter {
+            margin-top: 10px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .counter-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .char-count {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .char-status {
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .counter-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .counter-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        /* Character count color coding */
+        .counter-fill.optimal { background: var(--success-color); }
+        .counter-fill.good { background: #fbbf24; }
+        .counter-fill.acceptable { background: var(--warning-color); }
+        .counter-fill.problematic { background: var(--error-color); }
+
+        .char-status.optimal { background: #d1fae5; color: #065f46; }
+        .char-status.good { background: #fef3c7; color: #92400e; }
+        .char-status.acceptable { background: #fed7aa; color: #c2410c; }
+        .char-status.problematic { background: #fecaca; color: #991b1b; }
+
+        .live-suggestions {
+            margin-top: 8px;
+            min-height: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .advanced-options {
+            margin: 20px 0;
+        }
+
+        .options-toggle {
+            width: 100%;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .options-toggle:hover {
+            background: #e9ecef;
+        }
+
+        .options-toggle .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .options-toggle.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .options-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .options-content.active {
+            max-height: 400px;
+            padding: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-range {
+            width: 100%;
+        }
+
+        .range-value {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .form-color {
+            width: 50px;
+            height: 35px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .qr-preview-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-header h4 {
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .preview-status.ready { background: #d1fae5; color: #065f46; }
+        .preview-status.generating { background: #fef3c7; color: #92400e; }
+        .preview-status.error { background: #fecaca; color: #991b1b; }
+
+        .qr-preview-container {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preview-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .preview-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .qr-preview-container img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 4px;
+        }
+
+        .qr-analysis {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .analysis-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .capacity-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .capacity-panel h4 {
+            color: var(--text-primary);
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .capacity-meters {
+            margin-bottom: 20px;
+        }
+
+        .capacity-meter {
+            margin-bottom: 20px;
+        }
+
+        .meter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .meter-percentage {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .meter-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .capacity-levels {
+            display: grid;
+            gap: 8px;
+        }
+
+        .level-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .level-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .level-label {
+            font-size: 0.9rem;
+        }
+
+        .level-capacity {
+            font-weight: 500;
+        }
+
+        .stego-compatibility {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .compatibility-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .compatibility-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.excellent { background: var(--success-color); }
+        .status-indicator.good { background: #fbbf24; }
+        .status-indicator.fair { background: var(--warning-color); }
+        .status-indicator.poor { background: var(--error-color); }
+        .status-indicator.unknown { background: #6b7280; }
+
+        .compatibility-details {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* QR Details in Result Area */
+        .qr-details {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .qr-generator-layout {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .capacity-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .qr-generator-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1032,17 +1468,173 @@
                         Buat QR Code baru dengan data teks yang dapat langsung digunakan untuk watermarking.
                     </div>
                     
-                    <form id="generateForm">
-                        <div class="form-group">
-                            <label class="form-label" for="qrData">Data QR Code</label>
-                            <input type="text" id="qrData" name="qrData" class="form-input" 
-                                   placeholder="Masukkan teks untuk QR Code..." required>
+                    <!-- Enhanced QR Generator Layout -->
+                    <div class="qr-generator-layout">
+                        <!-- Text Input Section -->
+                        <div class="qr-input-section">
+                            <form id="generateForm">
+                                <div class="form-group">
+                                    <label class="form-label" for="qrData">Data QR Code</label>
+                                    <textarea id="qrData" name="qrData" class="form-input qr-textarea" 
+                                              placeholder="Masukkan teks untuk QR Code..." required rows="3"></textarea>
+                                    
+                                    <!-- Character Counter with Color Coding -->
+                                    <div class="character-counter">
+                                        <div class="counter-info">
+                                            <span class="char-count" id="charCount">0</span>
+                                            <span class="char-status" id="charStatus">Optimal</span>
+                                        </div>
+                                        <div class="counter-bar">
+                                            <div class="counter-fill" id="counterFill"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Live Suggestions -->
+                                    <div class="live-suggestions" id="liveSuggestions"></div>
+                                </div>
+                                
+                                <!-- Advanced Options (Collapsible) -->
+                                <div class="advanced-options">
+                                    <button type="button" class="options-toggle" id="optionsToggle">
+                                        <i class="fas fa-cog"></i>
+                                        <span>Opsi Lanjutan</span>
+                                        <i class="fas fa-chevron-down toggle-icon"></i>
+                                    </button>
+                                    
+                                    <div class="options-content" id="optionsContent">
+                                        <div class="options-grid">
+                                            <div class="option-group">
+                                                <label class="form-label">Error Correction</label>
+                                                <select id="errorCorrection" class="form-select">
+                                                    <option value="L">L - Low (7%)</option>
+                                                    <option value="M" selected>M - Medium (15%)</option>
+                                                    <option value="Q">Q - Quartile (25%)</option>
+                                                    <option value="H">H - High (30%)</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="option-group">
+                                                <label class="form-label">Ukuran QR</label>
+                                                <select id="qrSize" class="form-select">
+                                                    <option value="5">Kecil (5x)</option>
+                                                    <option value="8">Sedang (8x)</option>
+                                                    <option value="10" selected>Normal (10x)</option>
+                                                    <option value="15">Besar (15x)</option>
+                                                    <option value="20">Sangat Besar (20x)</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="option-group">
+                                                <label class="form-label">Border</label>
+                                                <input type="range" id="borderSize" min="1" max="10" value="4" class="form-range">
+                                                <span class="range-value" id="borderValue">4</span>
+                                            </div>
+                                            
+                                            <div class="option-group">
+                                                <label class="form-label">Warna Fill</label>
+                                                <input type="color" id="fillColor" value="#000000" class="form-color">
+                                            </div>
+                                            
+                                            <div class="option-group">
+                                                <label class="form-label">Warna Background</label>
+                                                <input type="color" id="backColor" value="#ffffff" class="form-color">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success" style="width: 100%;">
+                                    <i class="fas fa-magic"></i> Buat QR Code
+                                </button>
+                            </form>
                         </div>
                         
-                        <button type="submit" class="btn btn-success" style="width: 100%;">
-                            <i class="fas fa-magic"></i> Buat QR Code
-                        </button>
-                    </form>
+                        <!-- QR Preview Panel -->
+                        <div class="qr-preview-panel">
+                            <div class="preview-header">
+                                <h4><i class="fas fa-eye"></i> Preview Real-time</h4>
+                                <div class="preview-status" id="previewStatus">Siap</div>
+                            </div>
+                            
+                            <div class="qr-preview-container" id="qrPreviewContainer">
+                                <div class="preview-placeholder">
+                                    <i class="fas fa-qrcode"></i>
+                                    <p>QR Code akan muncul di sini</p>
+                                </div>
+                            </div>
+                            
+                            <!-- QR Analysis Info -->
+                            <div class="qr-analysis" id="qrAnalysis">
+                                <div class="analysis-grid">
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Version</div>
+                                        <div class="analysis-value" id="qrVersion">-</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Dimensi</div>
+                                        <div class="analysis-value" id="qrDimensions">-</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Kapasitas</div>
+                                        <div class="analysis-value" id="qrCapacity">-</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Kepadatan</div>
+                                        <div class="analysis-value" id="qrDensity">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Capacity Analysis Panel -->
+                        <div class="capacity-panel">
+                            <h4><i class="fas fa-chart-bar"></i> Analisis Kapasitas</h4>
+                            
+                            <div class="capacity-meters">
+                                <div class="capacity-meter">
+                                    <div class="meter-header">
+                                        <span>Penggunaan Saat Ini</span>
+                                        <span class="meter-percentage" id="usagePercentage">0%</span>
+                                    </div>
+                                    <div class="meter-bar">
+                                        <div class="meter-fill" id="usageFill"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="capacity-levels">
+                                    <div class="level-item" data-level="L">
+                                        <span class="level-label">L (7%)</span>
+                                        <span class="level-capacity" id="capacityL">-</span>
+                                    </div>
+                                    <div class="level-item" data-level="M">
+                                        <span class="level-label">M (15%)</span>
+                                        <span class="level-capacity" id="capacityM">-</span>
+                                    </div>
+                                    <div class="level-item" data-level="Q">
+                                        <span class="level-label">Q (25%)</span>
+                                        <span class="level-capacity" id="capacityQ">-</span>
+                                    </div>
+                                    <div class="level-item" data-level="H">
+                                        <span class="level-label">H (30%)</span>
+                                        <span class="level-capacity" id="capacityH">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Steganography Compatibility -->
+                            <div class="stego-compatibility">
+                                <div class="compatibility-header">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Kompatibilitas Steganografi</span>
+                                </div>
+                                <div class="compatibility-status" id="stegoStatus">
+                                    <div class="status-indicator" id="stegoIndicator"></div>
+                                    <span id="stegoText">Menunggu input...</span>
+                                </div>
+                                <div class="compatibility-details" id="stegoDetails"></div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="progress-bar" id="generateProgress">
                         <div class="progress-fill"></div>
@@ -1681,7 +2273,298 @@
         // Initialize tabs when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeTabs();
+            initializeQREnhancements();
         });
+
+        // Enhanced QR Generator Functionality
+        function initializeQREnhancements() {
+            const qrDataInput = document.getElementById('qrData');
+            const optionsToggle = document.getElementById('optionsToggle');
+            const optionsContent = document.getElementById('optionsContent');
+            const borderSize = document.getElementById('borderSize');
+            const borderValue = document.getElementById('borderValue');
+            const errorCorrection = document.getElementById('errorCorrection');
+            const qrSize = document.getElementById('qrSize');
+            const fillColor = document.getElementById('fillColor');
+            const backColor = document.getElementById('backColor');
+
+            let debounceTimer;
+
+            // Initialize border range display
+            borderSize.addEventListener('input', function() {
+                borderValue.textContent = this.value;
+                if (qrDataInput.value.trim()) {
+                    debouncedQRUpdate();
+                }
+            });
+
+            // Advanced options toggle
+            optionsToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                optionsContent.classList.toggle('active');
+            });
+
+            // Real-time input handling with debounce
+            qrDataInput.addEventListener('input', function() {
+                updateCharacterCounter(this.value);
+                updateLiveSuggestions(this.value);
+                debouncedQRUpdate();
+            });
+
+            // Listen to all option changes
+            [errorCorrection, qrSize, fillColor, backColor].forEach(element => {
+                element.addEventListener('change', function() {
+                    if (qrDataInput.value.trim()) {
+                        debouncedQRUpdate();
+                    }
+                });
+            });
+
+            function debouncedQRUpdate() {
+                clearTimeout(debounceTimer);
+                const data = qrDataInput.value.trim();
+                
+                if (!data) {
+                    resetPreview();
+                    return;
+                }
+
+                setPreviewStatus('generating', 'Membuat...');
+                
+                debounceTimer = setTimeout(() => {
+                    generateRealtimePreview(data);
+                }, 300);
+            }
+
+            function updateCharacterCounter(text) {
+                const charCount = document.getElementById('charCount');
+                const charStatus = document.getElementById('charStatus');
+                const counterFill = document.getElementById('counterFill');
+                const length = text.length;
+
+                charCount.textContent = length;
+
+                // Remove existing classes
+                counterFill.className = 'counter-fill';
+                charStatus.className = 'char-status';
+
+                let status, statusText, percentage;
+
+                if (length <= 50) {
+                    status = 'optimal';
+                    statusText = 'Optimal';
+                    percentage = (length / 50) * 100;
+                } else if (length <= 100) {
+                    status = 'good';
+                    statusText = 'Baik';
+                    percentage = ((length - 50) / 50) * 100;
+                } else if (length <= 200) {
+                    status = 'acceptable';
+                    statusText = 'Dapat Diterima';
+                    percentage = ((length - 100) / 100) * 100;
+                } else {
+                    status = 'problematic';
+                    statusText = 'Bermasalah';
+                    percentage = 100;
+                }
+
+                counterFill.classList.add(status);
+                charStatus.classList.add(status);
+                charStatus.textContent = statusText;
+                counterFill.style.width = Math.min(percentage, 100) + '%';
+            }
+
+            function updateLiveSuggestions(text) {
+                const suggestions = document.getElementById('liveSuggestions');
+                const length = text.length;
+
+                if (length === 0) {
+                    suggestions.innerHTML = '';
+                    return;
+                }
+
+                let suggestionText = '';
+
+                if (length <= 50) {
+                    suggestionText = '<i class="fas fa-check-circle" style="color: var(--success-color);"></i> Panjang ideal untuk steganografi';
+                } else if (length <= 100) {
+                    suggestionText = '<i class="fas fa-info-circle" style="color: #fbbf24;"></i> Masih dalam batas yang baik';
+                } else if (length <= 200) {
+                    suggestionText = '<i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i> Mungkin akan mengurangi kualitas steganografi';
+                } else {
+                    suggestionText = '<i class="fas fa-times-circle" style="color: var(--error-color);"></i> Terlalu panjang, dapat menyebabkan masalah embedding';
+                }
+
+                suggestions.innerHTML = suggestionText;
+            }
+
+            function setPreviewStatus(status, text) {
+                const previewStatus = document.getElementById('previewStatus');
+                previewStatus.className = `preview-status ${status}`;
+                previewStatus.textContent = text;
+            }
+
+            function resetPreview() {
+                const container = document.getElementById('qrPreviewContainer');
+                container.innerHTML = `
+                    <div class="preview-placeholder">
+                        <i class="fas fa-qrcode"></i>
+                        <p>QR Code akan muncul di sini</p>
+                    </div>
+                `;
+                setPreviewStatus('ready', 'Siap');
+                resetAnalysis();
+                resetCapacityAnalysis();
+            }
+
+            function resetAnalysis() {
+                ['qrVersion', 'qrDimensions', 'qrCapacity', 'qrDensity'].forEach(id => {
+                    document.getElementById(id).textContent = '-';
+                });
+            }
+
+            function resetCapacityAnalysis() {
+                document.getElementById('usagePercentage').textContent = '0%';
+                document.getElementById('usageFill').style.width = '0%';
+                
+                ['capacityL', 'capacityM', 'capacityQ', 'capacityH'].forEach(id => {
+                    document.getElementById(id).textContent = '-';
+                });
+
+                document.querySelectorAll('.level-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                updateSteganographyCompatibility(0, 'unknown');
+            }
+
+            async function generateRealtimePreview(data) {
+                try {
+                    const formData = new FormData();
+                    formData.append('qrData', data);
+                    formData.append('errorCorrection', errorCorrection.value);
+                    formData.append('qrSize', qrSize.value);
+                    formData.append('borderSize', borderSize.value);
+                    formData.append('fillColor', fillColor.value);
+                    formData.append('backColor', backColor.value);
+                    formData.append('preview', 'true');
+
+                    const response = await fetch('/generate_qr_realtime', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        displayPreview(result);
+                        updateAnalysis(result.analysis);
+                        updateCapacityAnalysis(result.capacity);
+                        setPreviewStatus('ready', 'Selesai');
+                    } else {
+                        setPreviewStatus('error', 'Error');
+                        console.error('QR Generation Error:', result.message);
+                    }
+                } catch (error) {
+                    setPreviewStatus('error', 'Error');
+                    console.error('Network Error:', error);
+                }
+            }
+
+            function displayPreview(result) {
+                const container = document.getElementById('qrPreviewContainer');
+                container.innerHTML = `<img src="${result.qr_url}?t=${Date.now()}" alt="QR Code Preview">`;
+            }
+
+            function updateAnalysis(analysis) {
+                document.getElementById('qrVersion').textContent = analysis.version || '-';
+                document.getElementById('qrDimensions').textContent = 
+                    analysis.dimensions ? `${analysis.dimensions.width}×${analysis.dimensions.height}` : '-';
+                document.getElementById('qrCapacity').textContent = 
+                    analysis.capacity ? `${analysis.capacity} chars` : '-';
+                document.getElementById('qrDensity').textContent = 
+                    analysis.density ? `${analysis.density}%` : '-';
+            }
+
+            function updateCapacityAnalysis(capacity) {
+                const currentLength = qrDataInput.value.length;
+                
+                // Update capacity levels
+                ['L', 'M', 'Q', 'H'].forEach(level => {
+                    const maxCapacity = capacity[level.toLowerCase()] || 0;
+                    document.getElementById(`capacity${level}`).textContent = `${maxCapacity} chars`;
+                    
+                    // Highlight active level
+                    const levelItem = document.querySelector(`[data-level="${level}"]`);
+                    if (level === errorCorrection.value) {
+                        levelItem.classList.add('active');
+                    } else {
+                        levelItem.classList.remove('active');
+                    }
+                });
+
+                // Update usage meter
+                const currentCapacity = capacity[errorCorrection.value.toLowerCase()] || 1;
+                const usagePercentage = Math.min((currentLength / currentCapacity) * 100, 100);
+                
+                document.getElementById('usagePercentage').textContent = `${Math.round(usagePercentage)}%`;
+                
+                const usageFill = document.getElementById('usageFill');
+                usageFill.style.width = `${usagePercentage}%`;
+                
+                // Color code the usage bar
+                usageFill.className = 'meter-fill';
+                if (usagePercentage <= 50) {
+                    usageFill.style.background = 'var(--success-color)';
+                } else if (usagePercentage <= 75) {
+                    usageFill.style.background = '#fbbf24';
+                } else if (usagePercentage <= 90) {
+                    usageFill.style.background = 'var(--warning-color)';
+                } else {
+                    usageFill.style.background = 'var(--error-color)';
+                }
+
+                // Update steganography compatibility
+                updateSteganographyCompatibility(currentLength, usagePercentage);
+            }
+
+            function updateSteganographyCompatibility(textLength, usagePercentage) {
+                const indicator = document.getElementById('stegoIndicator');
+                const text = document.getElementById('stegoText');
+                const details = document.getElementById('stegoDetails');
+
+                let status, statusText, detailText;
+
+                if (textLength === 0) {
+                    status = 'unknown';
+                    statusText = 'Menunggu input...';
+                    detailText = '';
+                } else if (textLength <= 50 && usagePercentage <= 50) {
+                    status = 'excellent';
+                    statusText = 'Sangat Baik untuk Steganografi';
+                    detailText = 'QR Code berukuran kecil dengan data minimal akan mudah disembunyikan dan tidak terdeteksi.';
+                } else if (textLength <= 100 && usagePercentage <= 75) {
+                    status = 'good';
+                    statusText = 'Baik untuk Steganografi';
+                    detailText = 'QR Code masih dalam ukuran yang dapat disembunyikan dengan baik dalam gambar.';
+                } else if (textLength <= 200 && usagePercentage <= 90) {
+                    status = 'fair';
+                    statusText = 'Cukup untuk Steganografi';
+                    detailText = 'QR Code berukuran sedang, mungkin sedikit terlihat dalam gambar dengan resolusi rendah.';
+                } else {
+                    status = 'poor';
+                    statusText = 'Kurang Ideal untuk Steganografi';
+                    detailText = 'QR Code berukuran besar akan sulit disembunyikan dan dapat memengaruhi kualitas gambar.';
+                }
+
+                indicator.className = `status-indicator ${status}`;
+                text.textContent = statusText;
+                details.textContent = detailText;
+            }
+
+            // Initialize with empty state
+            resetPreview();
+        }
 
         // Generate QR Code Form
         document.getElementById('generateForm').addEventListener('submit', async function(e) {
@@ -1697,16 +2580,33 @@
             showProcessDetails('generateProcess');
             clearLog('generateLog');
             
-            const formData = new FormData(this);
             const qrData = document.getElementById('qrData').value;
+            const errorCorrection = document.getElementById('errorCorrection').value;
+            const qrSize = document.getElementById('qrSize').value;
+            const borderSize = document.getElementById('borderSize').value;
+            const fillColor = document.getElementById('fillColor').value;
+            const backColor = document.getElementById('backColor').value;
+            
+            // Create form data with enhanced parameters
+            const formData = new FormData();
+            formData.append('qrData', qrData);
+            formData.append('errorCorrection', errorCorrection);
+            formData.append('qrSize', qrSize);
+            formData.append('borderSize', borderSize);
+            formData.append('fillColor', fillColor);
+            formData.append('backColor', backColor);
+            formData.append('preview', 'false'); // Final generation, not preview
             
             // Add process steps
             addLogEntry('generateLog', '🚀 Memulai proses pembuatan QR Code...', 'info');
             addLogEntry('generateLog', `📝 Data input: "${qrData}"`, 'info');
             addLogEntry('generateLog', `📏 Panjang data: ${qrData.length} karakter`, 'info');
+            addLogEntry('generateLog', `⚙️ Error Correction: ${errorCorrection}`, 'info');
+            addLogEntry('generateLog', `📐 Ukuran: ${qrSize}x`, 'info');
+            addLogEntry('generateLog', `🎨 Warna: ${fillColor} pada ${backColor}`, 'info');
             
             try {
-                const response = await fetch('/generate_qr', {
+                const response = await fetch('/generate_qr_realtime', {
                     method: 'POST',
                     body: formData
                 });
@@ -1716,6 +2616,9 @@
                 if (result.success) {
                     addLogEntry('generateLog', '✅ QR Code berhasil dibuat!', 'success');
                     addLogEntry('generateLog', `💾 File tersimpan: ${result.qr_filename}`, 'success');
+                    addLogEntry('generateLog', `📊 Version: ${result.analysis.version}`, 'info');
+                    addLogEntry('generateLog', `📏 Dimensi: ${result.analysis.dimensions.width}×${result.analysis.dimensions.height}`, 'info');
+                    addLogEntry('generateLog', `📈 Kapasitas: ${result.analysis.capacity} chars`, 'info');
                     
                     showAlert('generateAlert', `
                         <i class="fas fa-check-circle"></i> 
@@ -1725,6 +2628,24 @@
                     document.getElementById('qrPreview').innerHTML = `
                         <img src="${result.qr_url}" alt="QR Code">
                         <p><strong>Data:</strong> ${qrData}</p>
+                        <div class="qr-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Version:</span>
+                                <span class="detail-value">${result.analysis.version}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Dimensi:</span>
+                                <span class="detail-value">${result.analysis.dimensions.width}×${result.analysis.dimensions.height}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Error Correction:</span>
+                                <span class="detail-value">${errorCorrection}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Penggunaan:</span>
+                                <span class="detail-value">${result.analysis.density}%</span>
+                            </div>
+                        </div>
                     `;
                     
                     document.getElementById('qrDownload').innerHTML = `

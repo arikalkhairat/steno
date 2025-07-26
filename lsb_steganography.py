@@ -6,6 +6,14 @@ from PIL.Image import Resampling
 import itertools
 import os
 import math
+import logging
+import numpy as np
+from typing import Dict, Tuple, Union, Optional
+import time
+
+# Setup logging for enhanced functionality
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 HEADER_TERMINATOR_BIN = '00000000'
 HEADER_TERMINATOR_LEN = len(HEADER_TERMINATOR_BIN)
@@ -353,4 +361,557 @@ def extract_qr_from_image(stego_image_path: str, output_qr_path: str):
     except Exception as e:
         print(f"[!] Error saat proses extracting: {e}")
         raise
+
+
+# ===================================================================
+# ENHANCED LSB STEGANOGRAPHY FUNCTIONS
+# ===================================================================
+
+def analyze_image_capacity(image_path: str) -> Dict:
+    """
+    Analyze image capacity for QR embedding with detailed metrics.
+    
+    Args:
+        image_path (str): Path to the cover image
+        
+    Returns:
+        Dict: Comprehensive capacity analysis
+    """
+    logger.info(f"Analyzing capacity for image: {image_path}")
+    
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image not found: {image_path}")
+    
+    try:
+        # Load and analyze image
+        img = Image.open(image_path).convert('RGB')
+        width, height = img.size
+        
+        # Calculate basic metrics
+        total_pixels = width * height
+        usable_capacity = total_pixels  # Each pixel can hold 1 bit in blue channel
+        
+        # Header requirements (width + height + terminator)
+        header_bits = 16 + 16 + HEADER_TERMINATOR_LEN  # 40 bits total
+        available_for_qr = usable_capacity - header_bits
+        
+        # Calculate maximum QR size that can fit
+        max_qr_pixels = available_for_qr
+        max_qr_dimension = int(math.sqrt(max_qr_pixels))
+        
+        # Calculate recommended QR size (conservative approach)
+        # Use 70% of maximum capacity for better quality
+        recommended_qr_pixels = int(max_qr_pixels * 0.7)
+        recommended_qr_dimension = int(math.sqrt(recommended_qr_pixels))
+        
+        # Calculate efficiency score based on image properties
+        img_array = np.array(img)
+        
+        # Analyze image complexity (affects embedding quality)
+        # Calculate standard deviation as complexity measure
+        complexity_score = np.std(img_array[:, :, 2])  # Blue channel complexity
+        
+        # Efficiency score (0-100) based on capacity and complexity
+        # Higher capacity and lower complexity = higher efficiency
+        capacity_score = min(100, (available_for_qr / 100000) * 50)  # Scale capacity
+        complexity_penalty = min(50, complexity_score / 5)  # Penalty for high complexity
+        efficiency_score = max(0, capacity_score - complexity_penalty)
+        
+        # Calculate image quality metrics
+        mean_brightness = np.mean(img_array)
+        contrast_ratio = np.std(img_array) / np.mean(img_array) if np.mean(img_array) > 0 else 0
+        
+        analysis_result = {
+            "total_pixels": total_pixels,
+            "usable_capacity": usable_capacity,
+            "header_bits": header_bits,
+            "available_for_qr": available_for_qr,
+            "max_qr_size": {
+                "width": max_qr_dimension,
+                "height": max_qr_dimension,
+                "total_pixels": max_qr_dimension * max_qr_dimension
+            },
+            "recommended_qr_size": {
+                "width": recommended_qr_dimension,
+                "height": recommended_qr_dimension,
+                "total_pixels": recommended_qr_dimension * recommended_qr_dimension
+            },
+            "efficiency_score": round(efficiency_score, 1),
+            "image_properties": {
+                "dimensions": {"width": width, "height": height},
+                "mean_brightness": round(mean_brightness, 2),
+                "contrast_ratio": round(contrast_ratio, 3),
+                "blue_channel_complexity": round(complexity_score, 2)
+            },
+            "capacity_utilization": {
+                "max_utilization": round((max_qr_pixels / total_pixels) * 100, 1),
+                "recommended_utilization": round((recommended_qr_pixels / total_pixels) * 100, 1)
+            }
+        }
+        
+        logger.info(f"Capacity analysis complete. Available QR capacity: {available_for_qr} bits")
+        return analysis_result
+        
+    except Exception as e:
+        logger.error(f"Error analyzing image capacity: {str(e)}")
+        raise
+
+
+def optimize_qr_for_image(cover_image_path: str, qr_data_length: int) -> Dict:
+    """
+    Determine optimal QR size for given cover image based on data length.
+    
+    Args:
+        cover_image_path (str): Path to cover image
+        qr_data_length (int): Length of data to be encoded in QR
+        
+    Returns:
+        Dict: Optimization recommendations
+    """
+    logger.info(f"Optimizing QR size for image: {cover_image_path}, data length: {qr_data_length}")
+    
+    # Get capacity analysis first
+    capacity_analysis = analyze_image_capacity(cover_image_path)
+    
+    # Estimate QR version requirements based on data length
+    # QR version capacity approximation (alphanumeric mode, error correction L)
+    qr_capacities = {
+        1: 25, 2: 47, 3: 77, 4: 114, 5: 154, 6: 195, 7: 224, 8: 279, 9: 335, 10: 395,
+        11: 468, 12: 535, 13: 619, 14: 667, 15: 758, 16: 854, 17: 938, 18: 1046, 19: 1153, 20: 1249
+    }
+    
+    # Find minimum QR version needed
+    required_version = None
+    for version, capacity in qr_capacities.items():
+        if capacity >= qr_data_length:
+            required_version = version
+            break
+    
+    if required_version is None:
+        required_version = 20  # Maximum standard version
+    
+    # Calculate QR module dimensions for required version
+    qr_modules = 21 + (required_version - 1) * 4
+    
+    # Determine optimal pixel size per module
+    max_qr_size = capacity_analysis["max_qr_size"]["width"]
+    recommended_qr_size = capacity_analysis["recommended_qr_size"]["width"]
+    
+    # Calculate module sizes
+    max_module_size = max_qr_size // qr_modules
+    recommended_module_size = recommended_qr_size // qr_modules
+    
+    # Ensure minimum module size for readability
+    min_module_size = 3  # Minimum 3 pixels per module
+    
+    optimal_module_size = max(min_module_size, recommended_module_size)
+    optimal_qr_size = optimal_module_size * qr_modules
+    
+    # Calculate quality predictions
+    embedding_density = (qr_modules * qr_modules) / capacity_analysis["total_pixels"]
+    
+    # Quality scoring
+    if embedding_density < 0.1:
+        quality_level = "Excellent"
+        predicted_psnr = 50 + (0.1 - embedding_density) * 100
+    elif embedding_density < 0.3:
+        quality_level = "Good"
+        predicted_psnr = 40 + (0.3 - embedding_density) * 50
+    elif embedding_density < 0.5:
+        quality_level = "Fair"
+        predicted_psnr = 35 + (0.5 - embedding_density) * 25
+    else:
+        quality_level = "Poor"
+        predicted_psnr = max(25, 35 - (embedding_density - 0.5) * 20)
+    
+    optimization_result = {
+        "data_requirements": {
+            "data_length": qr_data_length,
+            "required_qr_version": required_version,
+            "qr_modules": qr_modules,
+            "minimum_qr_pixels": qr_modules * qr_modules
+        },
+        "optimal_configuration": {
+            "qr_size": optimal_qr_size,
+            "module_size": optimal_module_size,
+            "total_qr_pixels": optimal_qr_size * optimal_qr_size
+        },
+        "alternative_configurations": [
+            {
+                "name": "Maximum Size",
+                "qr_size": max_module_size * qr_modules,
+                "module_size": max_module_size,
+                "quality_level": "Good" if max_module_size >= 4 else "Fair"
+            },
+            {
+                "name": "Conservative",
+                "qr_size": min_module_size * qr_modules,
+                "module_size": min_module_size,
+                "quality_level": "Fair" if min_module_size >= 3 else "Poor"
+            }
+        ],
+        "quality_prediction": {
+            "embedding_density": round(embedding_density, 4),
+            "quality_level": quality_level,
+            "predicted_psnr": round(predicted_psnr, 1),
+            "readability_score": min(100, optimal_module_size * 20)
+        },
+        "capacity_utilization": {
+            "used_capacity": optimal_qr_size * optimal_qr_size,
+            "available_capacity": capacity_analysis["available_for_qr"],
+            "utilization_percentage": round((optimal_qr_size * optimal_qr_size / capacity_analysis["available_for_qr"]) * 100, 1)
+        },
+        "recommendations": []
+    }
+    
+    # Add specific recommendations
+    if embedding_density > 0.5:
+        optimization_result["recommendations"].append("Consider using a larger cover image for better quality")
+    if optimal_module_size < 4:
+        optimization_result["recommendations"].append("QR code may be difficult to scan, consider reducing data length")
+    if capacity_analysis["efficiency_score"] < 50:
+        optimization_result["recommendations"].append("Cover image has high complexity, quality may be affected")
+    if optimization_result["quality_prediction"]["quality_level"] == "Excellent":
+        optimization_result["recommendations"].append("Optimal configuration for high-quality embedding")
+    
+    logger.info(f"QR optimization complete. Optimal size: {optimal_qr_size}x{optimal_qr_size}")
+    return optimization_result
+
+
+def check_qr_compatibility(cover_image_path: str, qr_image_path: str) -> Dict:
+    """
+    Check if QR can be embedded in cover image with quality metrics.
+    
+    Args:
+        cover_image_path (str): Path to cover image
+        qr_image_path (str): Path to QR code image
+        
+    Returns:
+        Dict: Compatibility analysis with quality predictions
+    """
+    logger.info(f"Checking compatibility: {cover_image_path} + {qr_image_path}")
+    
+    if not os.path.exists(cover_image_path):
+        raise FileNotFoundError(f"Cover image not found: {cover_image_path}")
+    if not os.path.exists(qr_image_path):
+        raise FileNotFoundError(f"QR image not found: {qr_image_path}")
+    
+    try:
+        # Load images
+        cover_img = Image.open(cover_image_path).convert('RGB')
+        qr_img = Image.open(qr_image_path).convert('1')
+        
+        cover_width, cover_height = cover_img.size
+        qr_width, qr_height = qr_img.size
+        
+        # Get capacity analysis
+        capacity_analysis = analyze_image_capacity(cover_image_path)
+        
+        # Calculate requirements
+        qr_pixels = qr_width * qr_height
+        header_bits = 16 + 16 + HEADER_TERMINATOR_LEN
+        total_bits_needed = header_bits + qr_pixels
+        available_capacity = capacity_analysis["available_for_qr"]
+        
+        # Check basic compatibility
+        compatible = total_bits_needed <= capacity_analysis["usable_capacity"]
+        resize_required = total_bits_needed > available_capacity
+        
+        # Calculate quality predictions
+        if compatible:
+            # Simulate embedding process for quality estimation
+            cover_array = np.array(cover_img)
+            blue_channel = cover_array[:, :, 2].astype(np.float64)
+            
+            # Calculate baseline statistics
+            original_mean = np.mean(blue_channel)
+            original_std = np.std(blue_channel)
+            
+            # Estimate changes from LSB modification
+            # Assume worst case: 50% of LSBs change
+            modification_ratio = min(1.0, total_bits_needed / capacity_analysis["total_pixels"])
+            expected_changes = modification_ratio * 0.5  # 50% of modified pixels change
+            
+            # Estimate MSE (Mean Squared Error)
+            # LSB changes contribute maximum 1 unit difference
+            estimated_mse = expected_changes * (0.5 ** 2)  # Average change of 0.5
+            
+            # Estimate PSNR
+            max_pixel_value = 255.0
+            if estimated_mse > 0:
+                estimated_psnr = 20 * math.log10(max_pixel_value / math.sqrt(estimated_mse))
+            else:
+                estimated_psnr = float('inf')
+            
+            # Adjust estimates based on image properties
+            complexity_factor = capacity_analysis["image_properties"]["blue_channel_complexity"] / 50.0
+            estimated_psnr = estimated_psnr - (complexity_factor * 2)  # Reduce PSNR for complex images
+            
+            quality_prediction = {
+                "mse_estimate": round(estimated_mse, 4),
+                "psnr_estimate": round(min(estimated_psnr, 60.0), 1),  # Cap at reasonable maximum
+                "quality_level": "Excellent" if estimated_psnr > 45 else 
+                               "Good" if estimated_psnr > 35 else 
+                               "Fair" if estimated_psnr > 25 else "Poor"
+            }
+        else:
+            quality_prediction = {
+                "mse_estimate": None,
+                "psnr_estimate": None,
+                "quality_level": "Incompatible"
+            }
+        
+        # Calculate resize recommendation if needed
+        resize_recommendation = None
+        if resize_required:
+            max_qr_pixels = available_capacity
+            new_dimension = int(math.sqrt(max_qr_pixels))
+            resize_recommendation = {
+                "current_size": {"width": qr_width, "height": qr_height},
+                "recommended_size": {"width": new_dimension, "height": new_dimension},
+                "size_reduction": round((1 - (new_dimension * new_dimension) / qr_pixels) * 100, 1)
+            }
+        
+        # Generate recommendations
+        recommendations = []
+        
+        if not compatible:
+            recommendations.append("QR code is too large for this cover image")
+            recommendations.append("Consider using a larger cover image or smaller QR code")
+        elif resize_required:
+            recommendations.append(f"QR code needs to be resized to {resize_recommendation['recommended_size']['width']}x{resize_recommendation['recommended_size']['height']}")
+            recommendations.append("Resize will be performed automatically during embedding")
+        else:
+            if quality_prediction["quality_level"] == "Excellent":
+                recommendations.append("QR size is optimal for this image")
+                recommendations.append("High quality embedding expected")
+            elif quality_prediction["quality_level"] == "Good":
+                recommendations.append("Good quality embedding expected")
+            elif quality_prediction["quality_level"] == "Fair":
+                recommendations.append("Acceptable quality, but consider optimizing QR size")
+            else:
+                recommendations.append("Quality may be affected, consider using different parameters")
+        
+        # Add specific technical recommendations
+        utilization = (total_bits_needed / capacity_analysis["total_pixels"]) * 100
+        if utilization > 50:
+            recommendations.append("High capacity utilization may affect image quality")
+        
+        if capacity_analysis["image_properties"]["blue_channel_complexity"] > 30:
+            recommendations.append("Cover image has high complexity in blue channel")
+        
+        compatibility_result = {
+            "compatible": compatible,
+            "resize_required": resize_required,
+            "capacity_analysis": {
+                "qr_bits_needed": qr_pixels,
+                "header_bits_needed": header_bits,
+                "total_bits_needed": total_bits_needed,
+                "available_capacity": available_capacity,
+                "capacity_utilization": round((total_bits_needed / capacity_analysis["total_pixels"]) * 100, 1)
+            },
+            "quality_prediction": quality_prediction,
+            "resize_recommendation": resize_recommendation,
+            "image_properties": {
+                "cover_size": {"width": cover_width, "height": cover_height},
+                "qr_size": {"width": qr_width, "height": qr_height},
+                "cover_efficiency": capacity_analysis["efficiency_score"]
+            },
+            "recommendations": recommendations,
+            "processing_time": time.time()
+        }
+        
+        logger.info(f"Compatibility check complete. Compatible: {compatible}, Resize needed: {resize_required}")
+        return compatibility_result
+        
+    except Exception as e:
+        logger.error(f"Error checking QR compatibility: {str(e)}")
+        raise
+
+
+def enhanced_resize_qr(qr_img: Image.Image, target_size: Tuple[int, int], 
+                      algorithm: str = "lanczos") -> Dict:
+    """
+    Enhanced QR resizing with better algorithms and quality predictions.
+    
+    Args:
+        qr_img (Image.Image): QR code image to resize
+        target_size (Tuple[int, int]): Target (width, height)
+        algorithm (str): Resize algorithm ('nearest', 'lanczos', 'bicubic')
+        
+    Returns:
+        Dict: Resized image and quality metrics
+    """
+    logger.info(f"Enhanced QR resize from {qr_img.size} to {target_size} using {algorithm}")
+    
+    original_size = qr_img.size
+    
+    # Select resampling algorithm
+    algorithm_map = {
+        'nearest': Resampling.NEAREST,
+        'lanczos': Resampling.LANCZOS,
+        'bicubic': Resampling.BICUBIC,
+        'bilinear': Resampling.BILINEAR
+    }
+    
+    if algorithm not in algorithm_map:
+        algorithm = 'lanczos'  # Default to Lanczos
+        logger.warning(f"Unknown algorithm, using Lanczos")
+    
+    resampling_method = algorithm_map[algorithm]
+    
+    try:
+        # Perform resize
+        start_time = time.time()
+        resized_qr = qr_img.resize(target_size, resampling_method)
+        resize_time = time.time() - start_time
+        
+        # Calculate quality metrics
+        original_pixels = original_size[0] * original_size[1]
+        resized_pixels = target_size[0] * target_size[1]
+        
+        size_change_ratio = resized_pixels / original_pixels
+        
+        # Predict readability based on size change
+        if size_change_ratio > 1:
+            readability_score = min(100, 90 + (size_change_ratio - 1) * 10)
+            quality_level = "Enhanced"
+        elif size_change_ratio > 0.5:
+            readability_score = 80 + (size_change_ratio - 0.5) * 20
+            quality_level = "Good"
+        elif size_change_ratio > 0.25:
+            readability_score = 60 + (size_change_ratio - 0.25) * 80
+            quality_level = "Fair"
+        else:
+            readability_score = max(20, 60 * size_change_ratio / 0.25)
+            quality_level = "Poor"
+        
+        # Algorithm-specific quality adjustments
+        algorithm_quality_bonus = {
+            'lanczos': 5,
+            'bicubic': 3,
+            'bilinear': 1,
+            'nearest': -2
+        }
+        
+        readability_score += algorithm_quality_bonus.get(algorithm, 0)
+        readability_score = max(0, min(100, readability_score))
+        
+        resize_result = {
+            "resized_image": resized_qr,
+            "original_size": original_size,
+            "new_size": target_size,
+            "size_change_ratio": round(size_change_ratio, 3),
+            "algorithm_used": algorithm,
+            "quality_metrics": {
+                "readability_score": round(readability_score, 1),
+                "quality_level": quality_level,
+                "size_reduction_percent": round((1 - size_change_ratio) * 100, 1) if size_change_ratio < 1 else 0,
+                "size_increase_percent": round((size_change_ratio - 1) * 100, 1) if size_change_ratio > 1 else 0
+            },
+            "performance": {
+                "resize_time": round(resize_time, 4),
+                "pixels_processed": original_pixels
+            },
+            "recommendations": []
+        }
+        
+        # Add recommendations based on results
+        if readability_score < 50:
+            resize_result["recommendations"].append("QR code may be difficult to scan after resize")
+        if size_change_ratio < 0.3:
+            resize_result["recommendations"].append("Significant size reduction may affect QR readability")
+        if algorithm == 'nearest' and size_change_ratio != 1:
+            resize_result["recommendations"].append("Consider using Lanczos algorithm for better quality")
+        
+        logger.info(f"QR resize complete. Quality score: {readability_score}")
+        return resize_result
+        
+    except Exception as e:
+        logger.error(f"Error in enhanced QR resize: {str(e)}")
+        raise
+
+
+def batch_analyze_images(image_paths: list, output_format: str = "summary") -> Dict:
+    """
+    Batch processing for multiple image capacity analysis.
+    
+    Args:
+        image_paths (list): List of image paths to analyze
+        output_format (str): "summary" or "detailed"
+        
+    Returns:
+        Dict: Batch analysis results
+    """
+    logger.info(f"Starting batch analysis of {len(image_paths)} images")
+    
+    batch_results = {
+        "total_images": len(image_paths),
+        "successful_analyses": 0,
+        "failed_analyses": 0,
+        "processing_time": 0,
+        "results": [],
+        "summary_statistics": {}
+    }
+    
+    start_time = time.time()
+    capacities = []
+    efficiency_scores = []
+    
+    for i, image_path in enumerate(image_paths):
+        try:
+            logger.info(f"Processing image {i+1}/{len(image_paths)}: {image_path}")
+            
+            analysis = analyze_image_capacity(image_path)
+            
+            if output_format == "detailed":
+                batch_results["results"].append({
+                    "image_path": image_path,
+                    "analysis": analysis,
+                    "status": "success"
+                })
+            else:
+                batch_results["results"].append({
+                    "image_path": image_path,
+                    "available_capacity": analysis["available_for_qr"],
+                    "efficiency_score": analysis["efficiency_score"],
+                    "recommended_qr_size": analysis["recommended_qr_size"],
+                    "status": "success"
+                })
+            
+            capacities.append(analysis["available_for_qr"])
+            efficiency_scores.append(analysis["efficiency_score"])
+            batch_results["successful_analyses"] += 1
+            
+        except Exception as e:
+            logger.error(f"Failed to analyze {image_path}: {str(e)}")
+            batch_results["results"].append({
+                "image_path": image_path,
+                "error": str(e),
+                "status": "failed"
+            })
+            batch_results["failed_analyses"] += 1
+    
+    # Calculate summary statistics
+    if capacities:
+        batch_results["summary_statistics"] = {
+            "capacity_stats": {
+                "min": min(capacities),
+                "max": max(capacities),
+                "mean": sum(capacities) / len(capacities),
+                "median": sorted(capacities)[len(capacities)//2]
+            },
+            "efficiency_stats": {
+                "min": min(efficiency_scores),
+                "max": max(efficiency_scores),
+                "mean": sum(efficiency_scores) / len(efficiency_scores)
+            }
+        }
+    
+    batch_results["processing_time"] = round(time.time() - start_time, 2)
+    
+    logger.info(f"Batch analysis complete. Success: {batch_results['successful_analyses']}, "
+                f"Failed: {batch_results['failed_analyses']}")
+    
+    return batch_results
 
