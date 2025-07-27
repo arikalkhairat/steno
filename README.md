@@ -134,7 +134,44 @@ Pillow==10.0.0
 pyzbar==0.1.9
 numpy==1.24.3
 PyMuPDF==1.23.5
+requests==2.31.0  # for testing
 ```
+
+## 🧪 Testing
+
+Aplikasi ini memiliki satu file test komprehensif yang mencakup semua kebutuhan testing:
+
+### Menjalankan Test:
+```bash
+# Test semua komponen
+python test_application.py
+
+# Test hanya struktur file dan import
+python test_application.py --test-type structure
+
+# Test hanya API endpoints (butuh Flask running)
+python test_application.py --test-type api
+
+# Test hanya fungsi keamanan
+python test_application.py --test-type security
+
+# Test hanya fungsi QR Code
+python test_application.py --test-type qr
+
+# Test hanya pemrosesan gambar
+python test_application.py --test-type images
+
+# Generate laporan test detail
+python test_application.py --report
+```
+
+### Yang Ditest:
+- ✅ **Struktur File**: Memverifikasi semua file penting ada
+- ✅ **Import Module**: Memastikan semua module bisa diimport
+- ✅ **API Endpoints**: Test semua endpoint Flask
+- ✅ **Fungsi QR**: Test generate, analyze, dan validasi QR
+- ✅ **LSB Steganography**: Test embed dan extract gambar
+- ✅ **Security**: Test enkripsi, hash, dan validasi keamanan
 
 ## ⚙️ Pengaturan Aplikasi (Sudah Diatur Otomatis)
 

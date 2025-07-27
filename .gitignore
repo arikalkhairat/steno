@@ -57,7 +57,28 @@ static/generated/*
 public/documents/*
 *.log
 
+# Test and debug files (prevent accumulation)
+test_*.py
+debug_*.py
+*_test.py
+*_debug.py
+test_*.html
+debug_*.html
+*_test.html
+*_debug.html
+test_report.json
+*_test_report.json
+simple_*.html
+quick_*.py
+quick_*.html
+verify_*.py
+fix_*.py
+PERBAIKAN_*.md
+
 # Keep directory structure but ignore contents
 !static/uploads/.gitkeep
 !static/generated/.gitkeep  
-!public/documents/.gitkeep 
+!public/documents/.gitkeep
+
+# Keep the main comprehensive test file
+!test_application.py 
